@@ -1,3 +1,5 @@
+<img src="images/neteclogo (2).png" alt="logo" width="300"/>
+
 # Operaciones Avanzadas en Couchbase
 
 Este curso avanzado está diseñado para profesionales que requieren operar, optimizar y mantener plataformas Couchbase en entornos productivos de alta demanda. A lo largo del curso, el participante profundizará en la arquitectura interna del sistema, gestión avanzada de servicios (Data, Query, Index, Search, Analytics y Eventing), así como en estrategias de alta disponibilidad, seguridad, dimensionamiento y operación en Kubernetes.
@@ -87,9 +89,15 @@ Se abordarán escenarios reales de operación, incluyendo tuning de rendimiento,
 - [Diagnóstico, recuperación y mantenimiento del clúster](Capitulo13/README.md#diagnóstico-recuperación-y-mantenimiento-del-clúster)
   - Descripción: Diagnosticar incidentes y ejecutar la recuperación y el mantenimiento de un clúster en Amazon EKS, correlacionando métricas, logs y eventos, y aplicando backup, restore, rolling upgrades, rollback y runbooks.
   - Duración estimada: 48 min
+------------
 
-## Flujo de colaboración
 
-- Trabajar en `changes_course`.
-- Crear Pull Request hacia `main`.
-- Merge por `Squash and merge`.
+## 📬 Contacto y más información
+
+Si tienes alguna pregunta o necesitas soporte durante la realización de los laboratorios, no dudes en **contactar al equipo de Netec**. También puedes encontrar más recursos y cursos en nuestra página oficial:
+
+👉 https://netec.com
+
+---
+
+¡Bienvenido! Te recomendamos realizar los laboratorios en el orden presentado, ya que cada práctica construye la infraestructura y los conocimientos necesarios para la siguiente, culminando con un escenario completo de migración y operación.
