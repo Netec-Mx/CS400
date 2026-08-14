@@ -151,105 +151,16 @@ CB_IMAGE=couchbase/server:enterprise-7.6.2
 
 - {% include step_label.html %} Crea `scripts/eks-cluster.sh` para validar dependencias y administrar EKS con acciones reproducibles de creación, consulta de estado y eliminación.
 
-```bash
-cat > scripts/eks-cluster.sh << 'EOF'
-#!/usr/bin/env bash
-set -Eeuo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "${ROOT_DIR}/lab.env"
-CONFIG_FILE="${ROOT_DIR}/manifests/eks-cluster.yaml"
+  ```bash
+  curl -L -o scripts/eks-cluster.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab4/eks-cluster.sh
+  ```
 
-require_cmd() {
-  command -v "$1" >/dev/null 2>&1 || {
-    echo "ERROR: no se encontró '$1' en PATH."
-    exit 1
-  }
-}
-
-prerequisites() {
-  for cmd in aws eksctl kubectl jq helm curl; do
-    require_cmd "$cmd"
-  done
-  aws sts get-caller-identity --query '{Account:Account,Arn:Arn}' --output table
-}
-
-write_config() {
-  cat > "$CONFIG_FILE" << YAML
-apiVersion: eksctl.io/v1alpha5
-kind: ClusterConfig
-metadata:
-  name: ${EKS_CLUSTER}
-  region: ${AWS_REGION}
-  version: "${EKS_VERSION}"
-availabilityZones:
-  - ${AWS_REGION}a
-  - ${AWS_REGION}b
-  - ${AWS_REGION}c
-managedNodeGroups:
-  - name: ${EKS_NODEGROUP}
-    instanceType: m6i.xlarge
-    minSize: 3
-    desiredCapacity: 3
-    maxSize: 3
-    volumeSize: 80
-    labels:
-      workload: couchbase
-addonsConfig:
-  autoApplyPodIdentityAssociations: true
-addons:
-  - name: vpc-cni
-  - name: coredns
-  - name: kube-proxy
-  - name: metrics-server
-  - name: eks-pod-identity-agent
-  - name: aws-ebs-csi-driver
-YAML
-}
-
-create_cluster() {
-  prerequisites
-  if eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-    echo "El clúster ya existe; actualizando kubeconfig."
-  else
-    write_config
-    eksctl create cluster -f "$CONFIG_FILE"
-  fi
-  aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
-  kubectl wait --for=condition=Ready node --all --timeout=10m
-  kubectl get nodes -L node.kubernetes.io/instance-type,topology.kubernetes.io/zone
-}
-
-status_cluster() {
-  prerequisites
-  aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null
-  kubectl get nodes -o wide
-  kubectl get storageclass
-}
-
-delete_cluster() {
-  prerequisites
-  if ! eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-    echo "El clúster no existe."
-    return
-  fi
-  eksctl delete cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" --wait
-}
-
-case "${1:-}" in
-  create) create_cluster ;;
-  status) status_cluster ;;
-  delete) delete_cluster ;;
-  *) echo "Uso: $0 {create|status|delete}"; exit 2 ;;
-esac
-EOF
-```
-```bash
-chmod +x scripts/eks-cluster.sh
-bash -n scripts/eks-cluster.sh
-./scripts/eks-cluster.sh create
-```
-
+  ```bash
+  chmod +x scripts/eks-cluster.sh
+  bash -n scripts/eks-cluster.sh
+  ./scripts/eks-cluster.sh create
+  ```
 
 **Salida esperada:**
 
@@ -1685,6 +1596,7 @@ idx_booking_flight: online
 ---
 
 ## ✅ Tarea 10. Reporte, validación y limpieza — 5 min
+
 En esta tarea consolidarás metadata y métricas, ejecutarás una validación final y retirarás únicamente los recursos experimentales creados durante el laboratorio.
 
 
@@ -1709,198 +1621,14 @@ Arreglo JSON con los índices de `booking_lab4`, sus estados y metadata de condi
 
 - {% include step_label.html %} Genera y ejecuta una validación integral que comprueba topología, volumen de datos, estado de índices, réplica HA y evidencia de recuperación.
 
-```bash
-cat > scripts/validate.sh << 'EOF'
-#!/usr/bin/env bash
-set -Eeuo pipefail
+  ```bash
+  curl -L -o scripts/validate.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab4/validate.sh
+  ```
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "${ROOT_DIR}/lab.env"
-
-PASS=0
-FAIL=0
-
-pass() {
-  echo "✅ PASS: $1"
-  PASS=$((PASS + 1))
-}
-
-fail() {
-  echo "❌ FAIL: $1"
-  FAIL=$((FAIL + 1))
-}
-
-query() {
-  local statement="$1"
-
-  curl -sS \
-    -u "${CB_USER}:${CB_PASS}" \
-    -X POST \
-    http://localhost:8093/query/service \
-    --data-urlencode "statement=${statement}"
-}
-
-echo "================================================"
-echo "VALIDACIÓN FINAL - LAB 4"
-echo "================================================"
-
-# ------------------------------------------------------------
-# Validar nodos Index
-# ------------------------------------------------------------
-
-INDEX_NODES=$(
-  curl -sS \
-    -u "${CB_USER}:${CB_PASS}" \
-    http://localhost:8091/pools/default \
-  | jq '[.nodes[] | select(.services | index("index"))] | length'
-)
-
-if [[ "$INDEX_NODES" -eq 2 ]]; then
-  pass "2 nodos Index"
-else
-  fail "Se esperaban 2 nodos Index y se encontraron ${INDEX_NODES}"
-fi
-
-# ------------------------------------------------------------
-# Validar documentos
-# ------------------------------------------------------------
-
-DOC_RESPONSE=$(
-  query '
-    SELECT RAW COUNT(*)
-    FROM `travel-sample`.inventory.booking_lab4;
-  '
-)
-
-DOC_STATUS=$(jq -r '.status // "unknown"' <<< "$DOC_RESPONSE")
-
-if [[ "$DOC_STATUS" != "success" ]]; then
-  fail "No fue posible contar documentos"
-  echo "$DOC_RESPONSE" | jq '{status,errors}'
-  DOCS=0
-else
-  DOCS=$(jq -r '.results[0] // 0' <<< "$DOC_RESPONSE")
-
-  if [[ "$DOCS" -ge 200000 ]]; then
-    pass "200 000 documentos"
-  else
-    fail "Sólo ${DOCS} documentos"
-  fi
-fi
-
-# ------------------------------------------------------------
-# Validar índices requeridos
-# ------------------------------------------------------------
-
-INDEXES=(
-  idx_booking_route_date
-  idx_booking_status_price
-  idx_cancelled_created_customer
-  idx_booking_route_covering
-  idx_booking_origin_status_partitioned
-  idx_booking_customer_ha
-  idx_booking_cabin_price
-  idx_booking_flight
-  idx_booking_date_origin
-)
-
-for idx in "${INDEXES[@]}"; do
-
-  RESPONSE=$(
-    query "
-      SELECT RAW COUNT(*)
-      FROM system:indexes AS i
-      WHERE i.name = \"${idx}\"
-        AND i.keyspace_id = \"booking_lab4\"
-        AND i.state = \"online\";
-    "
-  )
-
-  STATUS=$(jq -r '.status // "unknown"' <<< "$RESPONSE")
-
-  if [[ "$STATUS" != "success" ]]; then
-    fail "Error consultando ${idx}"
-    echo "$RESPONSE" | jq '{status,errors}'
-    continue
-  fi
-
-  COUNT=$(jq -r '.results[0] // 0' <<< "$RESPONSE")
-
-  if [[ "$COUNT" -gt 0 ]]; then
-    pass "${idx} online"
-  else
-    fail "${idx} no está online"
-  fi
-done
-
-# ------------------------------------------------------------
-# Validar configuración HA del índice
-# ------------------------------------------------------------
-
-REPLICA_RESPONSE=$(
-  query '
-    SELECT RAW i.metadata.num_replica
-    FROM system:indexes AS i
-    WHERE i.name = "idx_booking_customer_ha"
-      AND i.keyspace_id = "booking_lab4"
-      AND i.state = "online"
-    LIMIT 1;
-  '
-)
-
-REPLICA_STATUS=$(jq -r '.status // "unknown"' <<< "$REPLICA_RESPONSE")
-
-if [[ "$REPLICA_STATUS" != "success" ]]; then
-
-  fail "No fue posible validar la configuración HA"
-
-  echo "$REPLICA_RESPONSE" \
-    | jq '{status,errors}'
-
-else
-
-  NUM_REPLICA=$(
-    jq -r '.results[0] // 0' \
-      <<< "$REPLICA_RESPONSE"
-  )
-
-  if [[ "$NUM_REPLICA" -eq 1 ]]; then
-    pass "índice HA configurado con num_replica=1"
-  else
-    fail "idx_booking_customer_ha tiene num_replica=${NUM_REPLICA}; se esperaba 1"
-  fi
-
-fi
-
-# ------------------------------------------------------------
-# Validar evidencia de recuperación
-# ------------------------------------------------------------
-
-if [[ -s "${ROOT_DIR}/outputs/q4-during-index-recovery.txt" ]]; then
-  pass "evidencia de recuperación"
-else
-  fail "falta evidencia de recuperación"
-fi
-
-# ------------------------------------------------------------
-# Resultado final
-# ------------------------------------------------------------
-
-echo
-echo "================================================"
-echo "RESULTADO: ${PASS} PASS / ${FAIL} FAIL"
-echo "================================================"
-
-if [[ "$FAIL" -ne 0 ]]; then
-  exit 1
-fi
-EOF
-```
-```bash
-chmod +x scripts/validate.sh
-./scripts/validate.sh
-```
-
+  ```bash
+  chmod +x scripts/validate.sh
+  ./scripts/validate.sh
+  ```
 
 **Salida esperada:**
 
@@ -1935,11 +1663,12 @@ pod "cb-index-client" deleted
 {% assign results = site.data.task-results[page.slug].results %}
 {% capture r10 %}{{ results[9] }}{% endcapture %}
 {% include task-result.html title="Tarea finalizada" content=r10 %}
+
 {% include support-prompt.html task="tarea10" %}
 
 ---
 
-# 🧹 Eliminación de Amazon EKS
+## 🧹 Eliminación de Amazon EKS
 
 - {% include step_label.html %} Detén con `Ctrl+C` las terminales que mantienen los port-forward de 8091, 8093 y 9102 para liberar los puertos locales antes de eliminar recursos.
 

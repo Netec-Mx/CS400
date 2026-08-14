@@ -9,7 +9,7 @@ objective:
   - Diseñar un modelo RBAC granular por collection con cuentas de servicio diferenciadas y validar autenticación y autorización.
   - Crear una CA privada y certificados X.509 con OpenSSL, almacenarlos como Kubernetes Secrets y habilitar Managed TLS mediante Couchbase Kubernetes Operator.
   - Habilitar cifrado completo entre nodos mediante nodeToNodeEncryption=All y verificar administración y Query Service sobre TLS.
-  - Configurar autenticación de clientes mediante certificados X.509 sin bloquear prematuramente el acceso administrativo.
+  - Configurar autenticación de clientes mediante certificados X.509 y preparar una identidad X.509 administrativa para que Couchbase Kubernetes Operator conserve acceso durante la reconciliación.
   - Habilitar auditoría, descubrir dinámicamente eventos auditables de Couchbase 7.6 y consolidar audit.log desde todos los Pods.
   - Aplicar medidas de hardening relacionadas con TLS, secretos, exposición de servicios y retención de auditoría.
   - Comparar la postura inicial y final mediante una matriz documentada y una suite de validación reproducible.
@@ -24,7 +24,7 @@ introduction:
 slug: lab6
 lab_number: 6
 final_result: >
-  Al finalizar la práctica habrás documentado la superficie inicial del clúster, creado una collection aislada para pruebas de autorización, implementado cuentas de servicio con privilegios mínimos, habilitado Managed TLS sin copiar certificados manualmente dentro de Pods, configurado cifrado completo entre nodos, autenticado un cliente mediante X.509, habilitado y analizado auditoría consolidada desde todos los Pods y generado una matriz de postura final con evidencias locales.
+  Al finalizar la práctica habrás documentado la superficie inicial del clúster, creado una collection aislada para pruebas de autorización, implementado cuentas de servicio con privilegios mínimos, preparado certificados X.509 de servidor y de administración para el Operator, habilitado Managed TLS y client certificate authentication de forma declarativa, configurado cifrado completo entre nodos, autenticado un cliente mediante X.509, habilitado y analizado auditoría consolidada desde todos los Pods y generado una matriz de postura final con evidencias locales.
 notes:
   - Los 84 minutos corresponden únicamente a tareas funcionales de seguridad de Couchbase. La creación y eliminación de Amazon EKS quedan fuera del tiempo.
   - Todos los comandos locales deben ejecutarse desde Git Bash integrado en Visual Studio Code.
@@ -32,7 +32,7 @@ notes:
   - La topología utiliza dos Pods Data + Query, un Pod Index + Search y un Pod Analytics + Eventing sobre tres workers m6i.xlarge.
   - No se utiliza SSH ni SCP hacia Pods. Los certificados se entregan mediante Kubernetes Secrets y el Operator administra su aplicación.
   - Las IP de Pods son efímeras y nunca se incluyen como identidad permanente en certificados X.509.
-  - El estado de client certificate permanece en enable; mandatory se explica pero no se fuerza.
+  - El estado de client certificate permanece en enable; el Operator recibe un certificado con CN Administrator antes de activar la política y mandatory se explica pero no se fuerza.
   - nodeToNodeEncryption se configura en All para cifrar control y datos entre nodos.
   - La auditoría de Couchbase es por nodo; la práctica consolida audit.log desde todos los Pods.
 references:
@@ -46,6 +46,8 @@ references:
     url: https://docs.couchbase.com/server/7.6/learn/security/roles.html
   - text: Configuración de autenticación mediante certificados de cliente
     url: https://docs.couchbase.com/server/7.6/manage/manage-security/enable-client-certificate-handling.html
+  - text: Autenticación mediante certificados cliente con Couchbase Kubernetes Operator
+    url: https://docs.couchbase.com/operator/current/howto-tls-client-certificates.html
   - text: API REST para configuración de auditoría en Couchbase Server
     url: https://docs.couchbase.com/server/7.6/rest-api/rest-auditing.html
   - text: Configuración de cifrado entre nodos en Couchbase Server
@@ -68,12 +70,12 @@ next: /lab7/lab7/
 - {% include step_label.html %} Crea los directorios que almacenarán manifiestos, certificados, claves privadas, scripts, auditoría y evidencias y confirma el resultado esperado.
 
 ```bash
-mkdir -p /c/LABS/couchbase-nosql/lab6/{scripts,manifests,certs/ca,certs/server,certs/client,certs/private,audit-logs,outputs}
+mkdir -p /c/LABS/couchbase-nosql/lab6/{scripts,manifests,certs/ca,certs/server,certs/operator,certs/client,certs/private,audit-logs,outputs}
 cd /c/LABS/couchbase-nosql/lab6
 pwd
 ```
 
-**Salida esperada:** `pwd` debe devolver `/c/LABS/couchbase-nosql/lab6`; los subdirectorios `scripts`, `manifests`, `certs`, `audit-logs` y `outputs` quedan creados.
+**Salida esperada:** `pwd` debe devolver `/c/LABS/couchbase-nosql/lab6`; los subdirectorios `scripts`, `manifests`, `certs/operator`, `certs/client`, `certs/private`, `audit-logs` y `outputs` quedan creados.
 
 - {% include step_label.html %} Protege claves privadas, credenciales temporales y logs frente a una confirmación accidental en Git para validar el resultado antes de continuar.
 
@@ -136,111 +138,19 @@ source lab.env
 
 - {% include step_label.html %} Crea un script de ciclo de vida para que el laboratorio pueda crear, validar y destruir Amazon EKS de forma reproducible.
 
-```bash
-cat > scripts/eks-cluster.sh << 'EOF'
-#!/usr/bin/env bash
-set -Eeuo pipefail
-
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "${ROOT_DIR}/lab.env"
-CONFIG_FILE="${ROOT_DIR}/manifests/eks-cluster.yaml"
-
-require_cmd() {
-  command -v "$1" >/dev/null 2>&1 || {
-    echo "ERROR: falta '$1' en PATH."
-    exit 1
-  }
-}
-
-prerequisites() {
-  for cmd in aws eksctl kubectl jq helm curl openssl; do
-    require_cmd "$cmd"
-  done
-  aws sts get-caller-identity --output table
-}
-
-write_config() {
-  cat > "$CONFIG_FILE" << YAML
-apiVersion: eksctl.io/v1alpha5
-kind: ClusterConfig
-metadata:
-  name: ${EKS_CLUSTER}
-  region: ${AWS_REGION}
-  version: "${EKS_VERSION}"
-
-availabilityZones:
-  - ${AWS_REGION}a
-  - ${AWS_REGION}b
-  - ${AWS_REGION}c
-
-managedNodeGroups:
-  - name: ${EKS_NODEGROUP}
-    instanceType: m6i.xlarge
-    minSize: 3
-    desiredCapacity: 3
-    maxSize: 3
-    volumeSize: 60
-    labels:
-      workload: couchbase
-
-addonsConfig:
-  autoApplyPodIdentityAssociations: true
-
-addons:
-  - name: vpc-cni
-  - name: coredns
-  - name: kube-proxy
-  - name: metrics-server
-  - name: eks-pod-identity-agent
-  - name: aws-ebs-csi-driver
-YAML
-}
-
-create_cluster() {
-  prerequisites
-  if ! eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-    write_config
-    eksctl create cluster -f "$CONFIG_FILE"
-  fi
-  aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
-  kubectl wait --for=condition=Ready node --all --timeout=10m
-  kubectl get nodes -L node.kubernetes.io/instance-type,topology.kubernetes.io/zone
-}
-
-status_cluster() {
-  prerequisites
-  aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null
-  kubectl get nodes -o wide
-  kubectl get storageclass
-}
-
-delete_cluster() {
-  prerequisites
-  if eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-    eksctl delete cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" --wait
-  else
-    echo "El clúster no existe."
-  fi
-}
-
-case "${1:-}" in
-  create) create_cluster ;;
-  status) status_cluster ;;
-  delete) delete_cluster ;;
-  *) echo "Uso: $0 {create|status|delete}"; exit 2 ;;
-esac
-EOF
-```
+  ```bash
+  curl -L -o scripts/eks-cluster.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab6/eks-cluster.sh
+  ```
 
 **Salida esperada:** `scripts/eks-cluster.sh` debe contener las acciones `create`, `status` y `delete`, validar dependencias y usar `lab.env` como única fuente de configuración.
 
 - {% include step_label.html %} Asigna permisos al script, valida su sintaxis y crea Amazon EKS para comprobar que el ciclo de vida funciona con la configuración declarada.
 
-```bash
-chmod +x scripts/eks-cluster.sh
-bash -n scripts/eks-cluster.sh
-./scripts/eks-cluster.sh create
-```
+  ```bash
+  chmod +x scripts/eks-cluster.sh
+  bash -n scripts/eks-cluster.sh
+  ./scripts/eks-cluster.sh create
+  ```
 
 **Salida esperada:** `bash -n` no debe producir salida; la creación debe finalizar con tres workers `m6i.xlarge` en estado `Ready`, distribuidos en las zonas configuradas.
 
@@ -754,11 +664,23 @@ EOF
 ```bash
 kubectl apply -f manifests/security-client.yaml
 kubectl wait -n couchbase --for=condition=Ready pod/cb-security-client --timeout=3m
+```
+```bash
+kubectl exec -n couchbase cb-security-client -- \
+  sh -c '
+    export DEBIAN_FRONTEND=noninteractive
 
-kubectl exec -n couchbase cb-security-client --   sh -c 'apt-get update >/dev/null &&
-         apt-get install -y --no-install-recommends curl openssl ca-certificates >/dev/null &&
-         rm -rf /var/lib/apt/lists/* &&
-         pip install --quiet "couchbase>=4.4,<5"'
+    apt-get update >/dev/null &&
+    apt-get install -y --no-install-recommends \
+      curl \
+      openssl \
+      ca-certificates >/dev/null &&
+    rm -rf /var/lib/apt/lists/* &&
+    pip install \
+      --quiet \
+      --root-user-action=ignore \
+      "couchbase>=4.4,<5"
+  '
 ```
 
 **Salida esperada:** Kubernetes debe mostrar `pod/cb-security-client condition met`; el Pod debe quedar con `curl`, `openssl`, certificados raíz y Couchbase Python SDK 4.x disponibles.
@@ -915,13 +837,13 @@ curl -s -u "svc-index:${SVC_INDEX_PASS}" \
 
 ---
 
-## 🔐 Tarea 3. Crear CA, certificado servidor y Kubernetes Secrets — 14 min
+## 🔐 Tarea 3. Crear CA, certificados X.509 y Kubernetes Secrets — 17 min
 
-Couchbase Server requiere que el certificado utilizado por Managed TLS incluya los SAN esperados por el Operator. Para evitar conversiones de rutas de Git Bash, toda la identidad X.509 se define mediante archivos de configuración de OpenSSL en lugar de usar `-subj "/..."`.
+Couchbase Server requiere que el certificado utilizado por Managed TLS incluya los SAN esperados por el Operator. Antes de activar client certificate authentication también se prepara una identidad X.509 administrativa para Couchbase Kubernetes Operator, evitando que la reconciliación pierda acceso cuando el servidor comience a solicitar certificados cliente.
 
 ### Tarea 3.1. Crear la CA privada
 
-- {% include step_label.html %} Define explícitamente una CA X.509 con `CA:TRUE` y permisos de firma para evitar depender de extensiones predeterminadas de OpenSSL en Windows.
+- {% include step_label.html %} Define explícitamente una CA X.509 con `CA:TRUE`, capacidad de firma y un DN estable para que todos los certificados del laboratorio compartan una raíz de confianza verificable.
 
 ```bash
 cat > certs/ca/ca.cnf << 'EOF'
@@ -949,7 +871,7 @@ EOF
 
 **Salida esperada:** `certs/ca/ca.cnf` debe declarar `CA:TRUE`, `keyCertSign` y el DN `CN=CouchbaseLab6-CA`, sin utilizar argumentos `/C=...` susceptibles a conversión por MSYS.
 
-- {% include step_label.html %} Genera la clave RSA de la CA y emite el certificado raíz autofirmado utilizando exclusivamente el archivo de configuración anterior.
+- {% include step_label.html %} Genera la clave RSA privada de la CA y emite el certificado raíz autofirmado con el archivo de configuración, manteniendo la clave restringida al usuario del laboratorio.
 
 ```bash
 openssl genrsa \
@@ -970,7 +892,7 @@ openssl req \
 
 **Salida esperada:** Deben crearse `ca.key` y `ca.crt` sin errores; la clave queda restringida al propietario y el certificado raíz tiene una vigencia aproximada de diez años.
 
-- {% include step_label.html %} Verifica que el certificado sea realmente una CA y conserva su identidad antes de utilizarla para firmar certificados del clúster.
+- {% include step_label.html %} Verifica las extensiones críticas de la CA antes de utilizarla para firmar certificados de servidor y cliente, evitando propagar una cadena inválida al clúster.
 
 ```bash
 openssl x509 \
@@ -987,7 +909,7 @@ openssl x509 \
 
 ### Tarea 3.2. Definir SAN compatibles con Operator
 
-- {% include step_label.html %} Define la identidad servidor con los nueve SAN exigidos para `cb-cs400` en `couchbase` y extensiones explícitas de uso como servidor TLS.
+- {% include step_label.html %} Define la identidad del certificado servidor con los SAN utilizados por los Pods y Services del clúster, incluyendo `localhost` para comprobaciones internas controladas.
 
 ```bash
 cat > certs/server/server-san.cnf << 'EOF'
@@ -1029,14 +951,14 @@ DNS.9 = localhost
 EOF
 ```
 
-> **IMPORTANTE:** Los SAN siguen exactamente el patrón requerido por el Operator para Pods, Service discovery y `localhost`; no agregues IP de Pods porque son efímeras.
+> **IMPORTANTE:** Los SAN siguen el patrón requerido para Pods, Service discovery y `localhost`; no agregues IP de Pods porque son efímeras y no representan una identidad estable.
 {: .lab-note .important .compact}
 
 **Salida esperada:** El archivo debe contener los nueve SAN de `cb-cs400`, `CA:FALSE`, `serverAuth`, firma digital y cifrado de clave para el certificado servidor.
 
-### Tarea 3.3. Emitir certificado servidor
+### Tarea 3.3. Emitir y verificar el certificado servidor
 
-- {% include step_label.html %} Genera una clave RSA, crea el CSR y firma el certificado servidor con la CA privada aplicando las extensiones `server_ext`.
+- {% include step_label.html %} Genera la clave privada del servidor, crea el CSR y firma el certificado con la CA del laboratorio aplicando las extensiones `server_ext` definidas previamente.
 
 ```bash
 openssl genrsa \
@@ -1067,9 +989,7 @@ openssl x509 \
 
 **Salida esperada:** Deben existir `server.key`, `server.csr` y `server.crt`; OpenSSL debe informar que el CSR fue firmado por `CouchbaseLab6-CA` sin errores.
 
-### Tarea 3.4. Verificar certificado
-
-- {% include step_label.html %} Valida cadena, propósito TLS y SAN antes de crear Secrets, deteniendo el flujo si el certificado no puede verificarse contra la CA creada.
+- {% include step_label.html %} Valida cadena, propósito TLS y SAN antes de crear Kubernetes Secrets, deteniendo el flujo si el certificado no puede verificarse contra la CA privada.
 
 ```bash
 openssl verify \
@@ -1091,9 +1011,107 @@ openssl x509 \
 
 **Salida esperada:** `openssl verify` debe devolver `certs/server/server.crt: OK`; el issuer debe ser `CouchbaseLab6-CA` y los SAN deben incluir `DNS:localhost`.
 
-### Tarea 3.5. Crear y validar Kubernetes Secrets TLS
+### Tarea 3.4. Crear certificado cliente administrativo para Couchbase Operator
 
-- {% include step_label.html %} Crea el trust pool y el Secret servidor en formato `kubernetes.io/tls`, reemplazándolos de forma idempotente si ya existían de una ejecución anterior.
+- {% include step_label.html %} Define una identidad X.509 de cliente cuyo CN sea `Administrator`, porque el Operator debe poder autenticarse con la misma cuenta declarada en `spec.security.adminSecret`.
+
+```bash
+cat > certs/operator/operator.cnf << 'EOF'
+[req]
+prompt = no
+default_md = sha256
+distinguished_name = dn
+
+[dn]
+C = MX
+ST = Lab
+L = EKS
+O = CouchbaseLab
+OU = Operator
+CN = Administrator
+
+[client_ext]
+basicConstraints = critical,CA:FALSE
+keyUsage = critical,digitalSignature
+extendedKeyUsage = clientAuth
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+EOF
+```
+
+**Salida esperada:** `certs/operator/operator.cnf` debe declarar `CN=Administrator`, `CA:FALSE`, `Digital Signature` y `clientAuth` para una identidad administrativa de cliente.
+
+- {% include step_label.html %} Genera la clave, CSR y certificado cliente del Operator con la misma CA privada, asegurando que la identidad administrativa exista antes de habilitar la política X.509.
+
+```bash
+openssl genrsa \
+  -out certs/private/operator.key \
+  2048
+
+chmod 600 certs/private/operator.key
+
+openssl req \
+  -new \
+  -sha256 \
+  -key certs/private/operator.key \
+  -out certs/operator/operator.csr \
+  -config certs/operator/operator.cnf
+
+openssl x509 \
+  -req \
+  -sha256 \
+  -days 730 \
+  -in certs/operator/operator.csr \
+  -CA certs/ca/ca.crt \
+  -CAkey certs/private/ca.key \
+  -CAcreateserial \
+  -out certs/operator/operator.crt \
+  -extensions client_ext \
+  -extfile certs/operator/operator.cnf
+```
+
+**Salida esperada:** Deben existir `operator.key`, `operator.csr` y `operator.crt`; el certificado debe quedar firmado por `CouchbaseLab6-CA` sin errores de OpenSSL.
+
+- {% include step_label.html %} Verifica que el certificado sea válido para autenticación TLS de cliente y que su CN coincida exactamente con el usuario almacenado en `cb-admin`.
+
+```bash
+openssl verify \
+  -purpose sslclient \
+  -CAfile certs/ca/ca.crt \
+  certs/operator/operator.crt
+
+ADMIN_SECRET_USER=$(
+  kubectl get secret cb-admin \
+    -n "$CB_NAMESPACE" \
+    -o jsonpath='{.data.username}' \
+  | base64 -d
+)
+
+OPERATOR_CERT_CN=$(
+  openssl x509 \
+    -in certs/operator/operator.crt \
+    -noout \
+    -subject \
+    -nameopt RFC2253 \
+  | sed -n 's/.*CN=\([^,]*\).*/\1/p'
+)
+
+echo "adminSecret username : $ADMIN_SECRET_USER"
+echo "Operator cert CN     : $OPERATOR_CERT_CN"
+
+if [[ "$ADMIN_SECRET_USER" == "$OPERATOR_CERT_CN" ]]; then
+  echo "Identidad del Operator validada correctamente."
+else
+  echo "ERROR: el CN del certificado no coincide con adminSecret."
+  exit 1
+fi
+```
+
+**Salida esperada:** `openssl verify` debe devolver `operator.crt: OK`; ambos valores deben ser `Administrator` y debe imprimirse `Identidad del Operator validada correctamente.`.
+
+### Tarea 3.5. Crear Kubernetes Secrets para servidor, CA y Operator
+
+- {% include step_label.html %} Crea los tres Secrets TLS antes de modificar el CouchbaseCluster, de modo que el Operator encuentre simultáneamente servidor, CA e identidad cliente administrativa.
 
 ```bash
 kubectl create secret tls couchbase-server-ca \
@@ -1103,7 +1121,8 @@ kubectl create secret tls couchbase-server-ca \
   --dry-run=client \
   -o yaml \
   | kubectl apply -f -
-
+```
+```bash
 kubectl create secret tls couchbase-server-tls \
   --namespace "$CB_NAMESPACE" \
   --cert certs/server/server.crt \
@@ -1112,18 +1131,34 @@ kubectl create secret tls couchbase-server-tls \
   -o yaml \
   | kubectl apply -f -
 ```
+```bash
+kubectl create secret tls couchbase-operator-tls \
+  --namespace "$CB_NAMESPACE" \
+  --cert certs/operator/operator.crt \
+  --key certs/private/operator.key \
+  --dry-run=client \
+  -o yaml \
+  | kubectl apply -f -
+```
 
-**Salida esperada:** Kubernetes debe crear o configurar `couchbase-server-ca` y `couchbase-server-tls` en `couchbase`, ambos como Secrets TLS válidos.
+**Salida esperada:** Kubernetes debe crear o configurar `couchbase-server-ca`, `couchbase-server-tls` y `couchbase-operator-tls` antes de iniciar la reconciliación TLS.
 
-- {% include step_label.html %} Comprueba tipos y verifica que el certificado almacenado en Kubernetes sea exactamente el mismo certificado servidor generado localmente.
+- {% include step_label.html %} Comprueba que los tres Secrets utilicen el formato TLS esperado por `secretSource` y conserva sus nombres como evidencia previa al cambio declarativo.
 
 ```bash
 kubectl get secret \
   couchbase-server-ca \
   couchbase-server-tls \
+  couchbase-operator-tls \
   -n "$CB_NAMESPACE" \
   -o custom-columns='NAME:.metadata.name,TYPE:.type'
 ```
+
+**Salida esperada:** Los tres recursos deben aparecer con `TYPE` igual a `kubernetes.io/tls`, confirmando que contienen las claves estándar `tls.crt` y `tls.key`.
+
+### Tarea 3.6. Validar certificados almacenados en Kubernetes
+
+- {% include step_label.html %} Compara el fingerprint SHA-256 del certificado servidor local con el contenido del Secret para detectar cualquier sustitución o carga accidental antes del rollout.
 
 ```bash
 LOCAL_FP=$(
@@ -1154,10 +1189,36 @@ if [[ "$LOCAL_FP" == "$SECRET_FP" ]]; then
   echo "Certificado servidor sincronizado correctamente."
 else
   echo "ERROR: el Secret no contiene el certificado servidor esperado."
+  exit 1
 fi
 ```
 
 **Salida esperada:** Los fingerprints SHA-256 deben ser idénticos y debe aparecer `Certificado servidor sincronizado correctamente.` antes de habilitar Managed TLS.
+
+- {% include step_label.html %} Confirma que el certificado almacenado para el Operator conserva el CN administrativo y que puede validarse con la CA usada como trust pool del clúster.
+
+```bash
+kubectl get secret couchbase-operator-tls \
+  -n "$CB_NAMESPACE" \
+  -o jsonpath='{.data.tls\.crt}' \
+  | base64 -d \
+  > /tmp/operator-from-secret.crt
+
+openssl verify \
+  -purpose sslclient \
+  -CAfile certs/ca/ca.crt \
+  /tmp/operator-from-secret.crt
+
+openssl x509 \
+  -in /tmp/operator-from-secret.crt \
+  -noout \
+  -subject \
+  -issuer
+
+rm -f /tmp/operator-from-secret.crt
+```
+
+**Salida esperada:** OpenSSL debe devolver `OK`; el subject debe contener `CN=Administrator` y el issuer debe identificar `CouchbaseLab6-CA`.
 
 {% assign results = site.data.task-results[page.slug].results %}
 {% capture r3 %}{{ results[2] }}{% endcapture %}
@@ -1166,15 +1227,15 @@ fi
 
 ---
 
-## 🔒 Tarea 4. Habilitar Managed TLS y cifrado entre nodos — 10 min
+## 🔒 Tarea 4. Habilitar Managed TLS, mTLS opcional y cifrado entre nodos — 10 min
 
-### Tarea 4.1. Aplicar TLS declarativamente
+### Tarea 4.1. Aplicar Managed TLS y client certificate authentication declarativamente
 
 - {% include step_label.html %} Detén con `Ctrl+C` los port-forward de 8091 y 8093 antes de iniciar la reconciliación, evitando que una sustitución normal de Pods se interprete como fallo del laboratorio.
 
 **Salida esperada:** Las dos terminales dedicadas deben regresar al prompt; los puertos locales 8091 y 8093 dejan de depender de los Pods que el Operator puede reemplazar.
 
-- {% include step_label.html %} Crea el patch de Managed TLS con trust pool, certificado servidor, TLS 1.2 mínimo y cifrado completo entre nodos.
+- {% include step_label.html %} Declara en una sola operación el certificado servidor, la identidad cliente del Operator, el mapping `subject.cn`, TLS 1.2 y cifrado completo entre nodos.
 
 ```bash
 cat > manifests/enable-managed-tls.json << 'EOF'
@@ -1187,8 +1248,15 @@ cat > manifests/enable-managed-tls.json << 'EOF'
           "couchbase-server-ca"
         ],
         "secretSource": {
-          "serverSecretName": "couchbase-server-tls"
+          "serverSecretName": "couchbase-server-tls",
+          "clientSecretName": "couchbase-operator-tls"
         },
+        "clientCertificatePolicy": "enable",
+        "clientCertificatePaths": [
+          {
+            "path": "subject.cn"
+          }
+        ],
         "tlsMinimumVersion": "TLS1.2",
         "nodeToNodeEncryption": "All"
       }
@@ -1196,19 +1264,37 @@ cat > manifests/enable-managed-tls.json << 'EOF'
   }
 }
 EOF
-
+```
+```bash
 kubectl patch couchbasecluster "$CB_CLUSTER" \
   -n "$CB_NAMESPACE" \
   --type merge \
   --patch-file manifests/enable-managed-tls.json
+```
 
+**Salida esperada:** Kubernetes debe responder `couchbasecluster.couchbase.com/cb-cs400 patched`; el Operator inicia una reconciliación que puede reemplazar temporalmente los Pods mediante SwapRebalance.
+
+> **IMPORTANTE:** `clientCertificatePolicy: enable` mantiene disponibles mecanismos alternativos cuando un cliente no presenta certificado; no uses `mandatory` en esta práctica porque obligaría a todos los clientes a presentar una identidad X.509.
+{: .lab-note .important .compact}
+
+- {% include step_label.html %} Verifica inmediatamente el estado deseado almacenado en el CR para confirmar que el Operator recibió los tres componentes de Managed TLS antes de esperar el rollout.
+
+```bash
 kubectl get couchbasecluster "$CB_CLUSTER" \
   -n "$CB_NAMESPACE" \
   -o json \
-  | jq '.spec.networking.tls'
+  | jq '{
+      rootCAs: .spec.networking.tls.rootCAs,
+      serverSecretName: .spec.networking.tls.secretSource.serverSecretName,
+      clientSecretName: .spec.networking.tls.secretSource.clientSecretName,
+      clientCertificatePolicy: .spec.networking.tls.clientCertificatePolicy,
+      clientCertificatePaths: .spec.networking.tls.clientCertificatePaths,
+      tlsMinimumVersion: .spec.networking.tls.tlsMinimumVersion,
+      nodeToNodeEncryption: .spec.networking.tls.nodeToNodeEncryption
+    }'
 ```
 
-**Salida esperada:** El CR debe mostrar `rootCAs`, `serverSecretName`, `TLS1.2` y `nodeToNodeEncryption: "All"` exactamente como se declararon.
+**Salida esperada:** El JSON debe mostrar `couchbase-server-ca`, ambos Secrets TLS, `clientCertificatePolicy: "enable"`, `path: "subject.cn"`, `TLS1.2` y `nodeToNodeEncryption: "All"`.
 
 ### Tarea 4.2. Esperar reconciliación y estabilización real
 
@@ -1293,7 +1379,8 @@ done
 echo "ERROR: el clúster no alcanzó estabilidad dentro del tiempo previsto." >&2
 exit 1
 EOF
-
+```
+```bash
 chmod +x scripts/wait-couchbase-stable.sh
 bash -n scripts/wait-couchbase-stable.sh
 ./scripts/wait-couchbase-stable.sh
@@ -1389,13 +1476,15 @@ for pod in $(
         --connect-timeout 4 \
         --cacert /tmp/lab6-certs/ca.crt \
         -u "$CB_USER:$CB_PASS" \
-        -X POST \
         "https://${HOST}:18093/query/service" \
-        --data-urlencode 'statement=SELECT 1 AS probe;' \
+        --data-urlencode 'statement=SELECT 1 AS probe_value;' \
       2>/dev/null || true
   )
 
-  if echo "$RESPONSE" | jq -e '.status == "success"' >/dev/null 2>&1; then
+  if echo "$RESPONSE" \
+      | jq -e '.status == "success" and .results[0].probe_value == 1' \
+      >/dev/null 2>&1; then
+
     DATA_QUERY_POD="$pod"
     break
   fi
@@ -1404,6 +1493,7 @@ done
 if [[ -n "$DATA_QUERY_POD" ]]; then
   export DATA_QUERY_POD
   export CB_TLS_HOST="${DATA_QUERY_POD}.${CB_CLUSTER}.${CB_NAMESPACE}.svc"
+
   echo "Data + Query Pod: $DATA_QUERY_POD"
   echo "TLS host: $CB_TLS_HOST"
 else
@@ -1538,11 +1628,13 @@ MSYS_NO_PATHCONV=1 kubectl exec \
 ---
 
 
-## 🪪 Tarea 5. Configurar y probar autenticación mTLS — 10 min
+## 🪪 Tarea 5. Crear y validar una identidad mTLS de aplicación — 7 min
 
-### Tarea 5.1. Crear certificado cliente
+La política de certificados cliente ya fue declarada por Couchbase Kubernetes Operator durante la Tarea 4. En esta tarea no se modifica `/settings/clientCertAuth`; únicamente se crea una identidad de aplicación, se verifica el estado efectivo y se demuestra autenticación X.509 real sin contraseña.
 
-- {% include step_label.html %} Define el DN y las extensiones de un certificado cliente con CN `svc-mtls-client`, evitando `-subj` para eliminar conversiones de ruta de Git Bash.
+### Tarea 5.1. Crear certificado cliente de aplicación
+
+- {% include step_label.html %} Define el DN y las extensiones de un certificado cliente con CN `svc-mtls-client`, reutilizando la CA del laboratorio y evitando argumentos `-subj` sensibles a MSYS.
 
 ```bash
 cat > certs/client/client.cnf << 'EOF'
@@ -1567,6 +1659,10 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer
 EOF
 ```
+
+**Salida esperada:** `client.cnf` debe declarar `CN=svc-mtls-client`, `CA:FALSE`, `Digital Signature` y `clientAuth`, sin utilizar un DN escrito directamente en la línea de comandos.
+
+- {% include step_label.html %} Genera la clave, CSR y certificado de `svc-mtls-client`, firmándolo con la misma CA que Couchbase utiliza para validar certificados cliente del laboratorio.
 
 ```bash
 openssl genrsa \
@@ -1595,6 +1691,10 @@ openssl x509 \
   -extfile certs/client/client.cnf
 ```
 
+**Salida esperada:** OpenSSL debe confirmar la firma del CSR y generar `client.key`, `client.csr` y `client.crt` sin errores de extensiones o cadena.
+
+- {% include step_label.html %} Verifica propósito, subject e issuer del certificado antes de copiarlo al Pod cliente, evitando interpretar un error de identidad como un problema de Couchbase.
+
 ```bash
 openssl verify \
   -purpose sslclient \
@@ -1610,9 +1710,9 @@ openssl x509 \
   -ext keyUsage
 ```
 
-**Salida esperada:** `openssl verify` debe devolver `client.crt: OK`; el certificado debe mostrar CN `svc-mtls-client`, `TLS Web Client Authentication` y `Digital Signature`.
+**Salida esperada:** `openssl verify` debe devolver `client.crt: OK`; el subject debe contener `CN=svc-mtls-client` y el issuer debe identificar `CouchbaseLab6-CA`.
 
-- {% include step_label.html %} Copia certificado y clave al cliente Linux para realizar las pruebas mTLS sin depender de la pila TLS de Windows.
+- {% include step_label.html %} Copia certificado y clave al Pod Linux utilizado para las pruebas y restringe la clave privada para ejecutar mTLS sin depender de la pila TLS de Windows.
 
 ```bash
 MSYS_NO_PATHCONV=1 kubectl cp \
@@ -1629,11 +1729,11 @@ MSYS_NO_PATHCONV=1 kubectl exec \
   -- chmod 600 /tmp/lab6-certs/client.key
 ```
 
-**Salida esperada:** El Pod cliente debe disponer de `client.crt` y `client.key`; la clave debe tener permisos restrictivos dentro del contenedor.
+**Salida esperada:** El Pod debe contener `/tmp/lab6-certs/client.crt` y `client.key`; la clave privada debe conservar permisos restrictivos dentro del contenedor.
 
-### Tarea 5.2. Crear usuario correspondiente al CN
+### Tarea 5.2. Crear usuario RBAC correspondiente al CN
 
-- {% include step_label.html %} Crea `svc-mtls-client` con lectura sobre la collection experimental; la contraseña permanece sólo como mecanismo fallback del laboratorio.
+- {% include step_label.html %} Crea el usuario local `svc-mtls-client` con lectura restringida a la collection experimental, haciendo coincidir exactamente el identificador RBAC con el CN del certificado.
 
 ```bash
 source secrets.env
@@ -1651,15 +1751,12 @@ MSYS_NO_PATHCONV=1 kubectl exec \
     --data-urlencode "password=${SVC_MTLS_FALLBACK_PASS}" \
     --data-urlencode 'roles=data_reader[travel-sample:inventory:security_lab6]' \
     -o /dev/null \
-    -w 'svc-mtls-client: HTTP %{http_code}
-'
+    -w 'svc-mtls-client: HTTP %{http_code}\n'
 ```
 
-**Salida esperada:** El comando debe mostrar un código HTTP exitoso para `svc-mtls-client`; la contraseña fallback no debe imprimirse.
+**Salida esperada:** El comando debe mostrar `HTTP 200` para `svc-mtls-client`; la contraseña fallback no debe imprimirse y la identidad queda disponible para el mapping X.509.
 
-### Tarea 5.3. Habilitar client certificate handling
-
-- {% include step_label.html %} Habilita autenticación opcional por certificado usando `subject.cn`, conservando Basic Authentication para Operator y tareas administrativas.
+- {% include step_label.html %} Consulta el usuario recién creado para comprobar que el ID coincide con el CN y que su autorización se limita a `data_reader` sobre `security_lab6`.
 
 ```bash
 MSYS_NO_PATHCONV=1 kubectl exec \
@@ -1669,29 +1766,37 @@ MSYS_NO_PATHCONV=1 kubectl exec \
   curl -sS \
     --cacert /tmp/lab6-certs/ca.crt \
     -u "$CB_USER:$CB_PASS" \
-    -X POST \
-    -H 'Content-Type: application/json' \
-    "https://${CB_TLS_HOST}:18091/settings/clientCertAuth" \
-    -d '{
-      "state": "enable",
-      "prefixes": [
-        {
-          "path": "subject.cn",
-          "prefix": "",
-          "delimiter": ""
-        }
-      ]
+    "https://${CB_TLS_HOST}:18091/settings/rbac/users/local/svc-mtls-client" \
+  | jq '{
+      id,
+      domain,
+      roles
     }'
 ```
 
-> **IMPORTANTE:** `enable` acepta certificado cliente cuando está presente y mantiene otros mecanismos de autenticación. No uses `mandatory` en este laboratorio.
-{: .lab-note .important .compact}
+**Salida esperada:** El JSON debe mostrar `id: "svc-mtls-client"`, `domain: "local"` y el rol `data_reader` limitado al bucket, scope y collection del laboratorio.
 
-**Salida esperada:** La operación debe terminar sin error; una lectura posterior debe reflejar `state=enable` y `path=subject.cn`.
+### Tarea 5.3. Verificar la política declarativa y efectiva de certificados cliente
 
-### Tarea 5.4. Verificar configuración
+- {% include step_label.html %} Comprueba en el `CouchbaseCluster` que la política mTLS continúa administrada por Operator y referencia la identidad administrativa creada antes del rollout.
 
-- {% include step_label.html %} Lee la configuración efectiva desde el mismo canal TLS verificado y guarda la evidencia local para confirmar el mapping del CN.
+```bash
+kubectl get couchbasecluster "$CB_CLUSTER" \
+  -n "$CB_NAMESPACE" \
+  -o json \
+  | jq '{
+      clientSecretName:
+        .spec.networking.tls.secretSource.clientSecretName,
+      clientCertificatePolicy:
+        .spec.networking.tls.clientCertificatePolicy,
+      clientCertificatePaths:
+        .spec.networking.tls.clientCertificatePaths
+    }'
+```
+
+**Salida esperada:** El CR debe mostrar `clientSecretName: "couchbase-operator-tls"`, `clientCertificatePolicy: "enable"` y un path `subject.cn`.
+
+- {% include step_label.html %} Lee la configuración efectiva de Couchbase mediante HTTPS para confirmar que la reconciliación convirtió la declaración del Operator en `state=enable` y mapping por CN.
 
 ```bash
 MSYS_NO_PATHCONV=1 kubectl exec \
@@ -1706,26 +1811,80 @@ MSYS_NO_PATHCONV=1 kubectl exec \
   | jq '.'
 ```
 
-**Salida esperada:** El JSON debe mostrar `"state":"enable"` y un elemento en `prefixes` con `"path":"subject.cn"`.
+**Salida esperada:** El JSON debe mostrar `"state":"enable"` y al menos un elemento en `prefixes` con `"path":"subject.cn"`; `prefix` y `delimiter` pueden aparecer como cadenas vacías.
 
-### Tarea 5.5. Autenticar con certificado sin password
+### Tarea 5.4. Autenticar `svc-mtls-client` sin usuario ni contraseña
 
-- {% include step_label.html %} Presenta certificado y clave sin `-u`; HTTP 200 confirma que Couchbase resolvió el CN como la identidad local `svc-mtls-client`.
+- {% include step_label.html %} Presenta únicamente certificado y clave a `/whoami`, captura la identidad devuelta y evita usar sólo HTTP 200 como evidencia porque ese endpoint también describe sesiones anónimas.
 
 ```bash
-MSYS_NO_PATHCONV=1 kubectl exec \
-  -n "$CB_NAMESPACE" \
-  cb-security-client \
-  -- \
-  curl -sS \
-    --cacert /tmp/lab6-certs/ca.crt \
-    --cert /tmp/lab6-certs/client.crt \
-    --key /tmp/lab6-certs/client.key \
-    "https://${CB_TLS_HOST}:18091/whoami" \
+MTLS_IDENTITY=$(
+  MSYS_NO_PATHCONV=1 kubectl exec \
+    -n "$CB_NAMESPACE" \
+    cb-security-client \
+    -- \
+    curl -sS \
+      --cacert /tmp/lab6-certs/ca.crt \
+      --cert /tmp/lab6-certs/client.crt \
+      --key /tmp/lab6-certs/client.key \
+      "https://${CB_TLS_HOST}:18091/whoami"
+)
+
+echo "$MTLS_IDENTITY" \
   | tee outputs/mtls-management-response.json \
   | jq '.'
 ```
 
+**Salida esperada:** La respuesta debe contener `id: "svc-mtls-client"` y `domain: "local"` sin que el comando proporcione `-u`, usuario o contraseña.
+
+- {% include step_label.html %} Valida programáticamente la identidad X.509 devuelta para detener el laboratorio si el certificado fue aceptado por TLS pero no fue asociado con el usuario RBAC esperado.
+
+```bash
+MTLS_USER=$(echo "$MTLS_IDENTITY" | jq -r '.id // ""')
+MTLS_DOMAIN=$(echo "$MTLS_IDENTITY" | jq -r '.domain // ""')
+
+if [[ "$MTLS_USER" == "svc-mtls-client" \
+      && "$MTLS_DOMAIN" == "local" ]]; then
+  echo "mTLS autenticado correctamente como svc-mtls-client."
+else
+  echo "ERROR: el certificado no resolvió la identidad esperada."
+  exit 1
+fi
+```
+
+**Salida esperada:** Debe imprimirse `mTLS autenticado correctamente como svc-mtls-client.`; cualquier identidad vacía o `anonymous` debe detener el avance.
+
+### Tarea 5.5. Validar comportamiento sin identidad cliente
+
+- {% include step_label.html %} Consulta `/whoami` sin certificado ni credenciales para demostrar que la política `enable` no inventa una identidad y mantiene la sesión como anónima.
+
+```bash
+ANON_IDENTITY=$(
+  MSYS_NO_PATHCONV=1 kubectl exec \
+    -n "$CB_NAMESPACE" \
+    cb-security-client \
+    -- \
+    curl -sS \
+      --cacert /tmp/lab6-certs/ca.crt \
+      "https://${CB_TLS_HOST}:18091/whoami"
+)
+
+echo "$ANON_IDENTITY" | jq '.'
+
+ANON_DOMAIN=$(echo "$ANON_IDENTITY" | jq -r '.domain // ""')
+
+if [[ "$ANON_DOMAIN" == "anonymous" ]]; then
+  echo "Acceso sin identidad permanece anónimo."
+else
+  echo "ERROR: se obtuvo una identidad inesperada."
+  exit 1
+fi
+```
+
+**Salida esperada:** `/whoami` debe indicar `domain: "anonymous"` y el script debe imprimir `Acceso sin identidad permanece anónimo.` sin confundir HTTP 200 con autenticación.
+
+- {% include step_label.html %} Intenta acceder sin certificado ni credenciales a un recurso administrativo protegido para comprobar que una sesión anónima no obtiene privilegios sobre el clúster.
+
 ```bash
 MSYS_NO_PATHCONV=1 kubectl exec \
   -n "$CB_NAMESPACE" \
@@ -1733,32 +1892,12 @@ MSYS_NO_PATHCONV=1 kubectl exec \
   -- \
   curl -sS \
     --cacert /tmp/lab6-certs/ca.crt \
-    --cert /tmp/lab6-certs/client.crt \
-    --key /tmp/lab6-certs/client.key \
     -o /dev/null \
-    -w 'mTLS: HTTP %{http_code}
-' \
-    "https://${CB_TLS_HOST}:18091/whoami"
+    -w 'Sin identidad en recurso protegido: HTTP %{http_code}\n' \
+    "https://${CB_TLS_HOST}:18091/pools/default"
 ```
 
-**Salida esperada:** La respuesta debe identificar `svc-mtls-client` y la segunda petición debe imprimir `mTLS: HTTP 200` sin proporcionar usuario o contraseña.
-
-- {% include step_label.html %} Confirma que confiar en la CA sin proporcionar ninguna identidad no sea suficiente para autenticarse.
-
-```bash
-MSYS_NO_PATHCONV=1 kubectl exec \
-  -n "$CB_NAMESPACE" \
-  cb-security-client \
-  -- \
-  curl -sS \
-    --cacert /tmp/lab6-certs/ca.crt \
-    -o /dev/null \
-    -w 'Sin identidad cliente: HTTP %{http_code}
-' \
-    "https://${CB_TLS_HOST}:18091/whoami"
-```
-
-**Salida esperada:** La petición sin certificado ni credenciales debe responder `Sin identidad cliente: HTTP 401`.
+**Salida esperada:** El recurso protegido debe responder `HTTP 401`, confirmando que confiar en la CA sin presentar identidad o credenciales no concede acceso administrativo.
 
 {% assign results = site.data.task-results[page.slug].results %}
 {% capture r5 %}{{ results[4] }}{% endcapture %}
@@ -1766,7 +1905,6 @@ MSYS_NO_PATHCONV=1 kubectl exec \
 {% include support-prompt.html task="tarea5" %}
 
 ---
-
 
 ## 🧾 Tarea 6. Habilitar auditoría y generar eventos — 10 min
 
@@ -2205,7 +2343,7 @@ kubectl get couchbasecluster cb-cs400 \
   | tee outputs/operator-tls-final.json
 ```
 
-**Salida esperada:** `operator-tls-final.json` debe mostrar `rootCAs`, `serverSecretName`, `tlsMinimumVersion` y `nodeToNodeEncryption: "All"` declarados en el CouchbaseCluster.
+**Salida esperada:** `operator-tls-final.json` debe mostrar `rootCAs`, `serverSecretName`, `clientSecretName`, `clientCertificatePolicy`, `clientCertificatePaths`, `tlsMinimumVersion` y `nodeToNodeEncryption: "All"` declarados en el CouchbaseCluster.
 
 ### Tarea 8.3. Capturar seguridad final de Couchbase
 
@@ -2287,8 +2425,8 @@ cat > outputs/security-posture-final.md << 'EOF'
 | RBAC reader | KV read sin write | rbac-reader-test.txt |
 | RBAC query | SELECT sin INSERT | pruebas positiva/negativa |
 | RBAC index | Gestión GSI sin lectura | prueba svc-index |
-| Client X.509 | Habilitado | client-cert-auth.json |
-| mTLS | Certificado cliente aceptado | mtls-management-response.json |
+| Client X.509 | Habilitado declarativamente por Operator | operator-tls-final.json + client-cert-auth.json |
+| mTLS | Identidad svc-mtls-client resuelta como usuario local | mtls-management-response.json |
 | Auditoría | Habilitada | audit-settings-after.json |
 | Retención audit | 7 días | pruneAge=604800 |
 | Vista cluster-wide | Logs consolidados por Pod | audit-all.jsonl |
@@ -2318,219 +2456,24 @@ cat outputs/security-posture-final.md
 
 ### Tarea 10.1. Crear validate.sh
 
-- {% include step_label.html %} Crea una suite final basada en estados objetivos y no en mensajes de error o IDs auditables que puedan cambiar y confirma el resultado esperado.
+- {% include step_label.html %} Crea una suite final basada en estados objetivos para validar TLS, RBAC, mTLS, auditoría y configuración declarativa sin depender de mensajes transitorios del Operator.
+
+  ```bash
+  curl -L -o scripts/validate.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab6/validate.sh
+  ```
+
+**Salida esperada:** `validate.sh` debe comprobar Query TLS con `probe_value`, HTTPS, cifrado inter-node, RBAC, identidad mTLS real, client certificate auth, auditoría, logs y estado declarativo del Operator.
+
+- {% include step_label.html %} Asigna permisos a la suite, ejecútala y conserva la salida completa para impedir que la limpieza continúe cuando exista al menos una validación fallida.
 
 ```bash
-cat > scripts/validate.sh << 'EOF'
-#!/usr/bin/env bash
-set -Eeuo pipefail
-
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "${ROOT_DIR}/lab.env"
-source "${ROOT_DIR}/secrets.env"
-
-PASS=0
-FAIL=0
-CLIENT_POD="cb-security-client"
-CA_FILE="/tmp/lab6-certs/ca.crt"
-
-pass() {
-  echo "  ✅ PASS: $1"
-  PASS=$((PASS + 1))
-}
-
-fail() {
-  echo "  ❌ FAIL: $1"
-  FAIL=$((FAIL + 1))
-}
-
-DATA_QUERY_POD=""
-
-for pod in $(
-  kubectl get pods \
-    -n "$CB_NAMESPACE" \
-    -l "couchbase_cluster=$CB_CLUSTER" \
-    -o jsonpath='{.items[*].metadata.name}'
-); do
-
-  host="${pod}.${CB_CLUSTER}.${CB_NAMESPACE}.svc"
-
-  response=$(
-    MSYS_NO_PATHCONV=1 kubectl exec \
-      -n "$CB_NAMESPACE" \
-      "$CLIENT_POD" \
-      -- \
-      curl -sS \
-        --connect-timeout 4 \
-        --cacert "$CA_FILE" \
-        -u "$CB_USER:$CB_PASS" \
-        -X POST \
-        "https://${host}:18093/query/service" \
-        --data-urlencode 'statement=SELECT 1 AS probe;' \
-      2>/dev/null || true
-  )
-
-  if echo "$response" | jq -e '.status == "success"' >/dev/null 2>&1; then
-    DATA_QUERY_POD="$pod"
-    break
-  fi
-done
-
-if [[ -z "$DATA_QUERY_POD" ]]; then
-  echo "  ❌ FAIL: no se encontró Query Service TLS"
-  exit 1
-fi
-
-CB_TLS_HOST="${DATA_QUERY_POD}.${CB_CLUSTER}.${CB_NAMESPACE}.svc"
-
-HTTPS_CODE=$(
-  MSYS_NO_PATHCONV=1 kubectl exec \
-    -n "$CB_NAMESPACE" \
-    "$CLIENT_POD" \
-    -- \
-    curl -sS \
-      --cacert "$CA_FILE" \
-      -u "$CB_USER:$CB_PASS" \
-      -o /dev/null \
-      -w '%{http_code}' \
-      "https://${CB_TLS_HOST}:18091/whoami"
-)
-
-[[ "$HTTPS_CODE" == "200" ]] \
-  && pass "HTTPS administración responde 200" \
-  || fail "HTTPS administración respondió ${HTTPS_CODE}"
-
-SECURITY=$(
-  MSYS_NO_PATHCONV=1 kubectl exec \
-    -n "$CB_NAMESPACE" \
-    "$CLIENT_POD" \
-    -- \
-    curl -sS \
-      --cacert "$CA_FILE" \
-      -u "$CB_USER:$CB_PASS" \
-      "https://${CB_TLS_HOST}:18091/settings/security"
-)
-
-HTTP_DISABLED=$(echo "$SECURITY" | jq -r '.disableUIOverHttp')
-ENC_LEVEL=$(echo "$SECURITY" | jq -r '.clusterEncryptionLevel')
-
-[[ "$HTTP_DISABLED" == "true" ]] \
-  && pass "UI HTTP deshabilitada" \
-  || fail "UI HTTP no deshabilitada"
-
-[[ "$ENC_LEVEL" == "all" ]] \
-  && pass "Cifrado inter-node completo activo" \
-  || fail "clusterEncryptionLevel=${ENC_LEVEL}"
-
-QUERY_STATUS=$(
-  MSYS_NO_PATHCONV=1 kubectl exec \
-    -n "$CB_NAMESPACE" \
-    "$CLIENT_POD" \
-    -- \
-    curl -sS \
-      --cacert "$CA_FILE" \
-      -u "svc-query:${SVC_QUERY_PASS}" \
-      -X POST \
-      "https://${CB_TLS_HOST}:18093/query/service" \
-      --data-urlencode 'statement=
-        SELECT RAW COUNT(*)
-        FROM `travel-sample`.inventory.security_lab6;' \
-    | jq -r '.status'
-)
-
-[[ "$QUERY_STATUS" == "success" ]] \
-  && pass "svc-query ejecuta SELECT autorizado" \
-  || fail "svc-query SELECT status=${QUERY_STATUS}"
-
-READER_QUERY_STATUS=$(
-  MSYS_NO_PATHCONV=1 kubectl exec \
-    -n "$CB_NAMESPACE" \
-    "$CLIENT_POD" \
-    -- \
-    curl -sS \
-      --cacert "$CA_FILE" \
-      -u "svc-reader:${SVC_READER_PASS}" \
-      -X POST \
-      "https://${CB_TLS_HOST}:18093/query/service" \
-      --data-urlencode 'statement=
-        SELECT * FROM `travel-sample`.inventory.security_lab6 LIMIT 1;' \
-    | jq -r '.status'
-)
-
-[[ "$READER_QUERY_STATUS" != "success" ]] \
-  && pass "svc-reader no puede ejecutar SQL++" \
-  || fail "svc-reader ejecutó SQL++ inesperadamente"
-
-MTLS_CODE=$(
-  MSYS_NO_PATHCONV=1 kubectl exec \
-    -n "$CB_NAMESPACE" \
-    "$CLIENT_POD" \
-    -- \
-    curl -sS \
-      --cacert "$CA_FILE" \
-      --cert /tmp/lab6-certs/client.crt \
-      --key /tmp/lab6-certs/client.key \
-      -o /dev/null \
-      -w '%{http_code}' \
-      "https://${CB_TLS_HOST}:18091/pools/default"
-)
-
-[[ "$MTLS_CODE" == "200" ]] \
-  && pass "mTLS autentica svc-mtls-client" \
-  || fail "mTLS respondió HTTP ${MTLS_CODE}"
-
-AUDIT_ENABLED=$(
-  MSYS_NO_PATHCONV=1 kubectl exec \
-    -n "$CB_NAMESPACE" \
-    "$CLIENT_POD" \
-    -- \
-    curl -sS \
-      --cacert "$CA_FILE" \
-      -u "$CB_USER:$CB_PASS" \
-      "https://${CB_TLS_HOST}:18091/settings/audit" \
-    | jq -r '.auditdEnabled'
-)
-
-[[ "$AUDIT_ENABLED" == "true" ]] \
-  && pass "Auditoría habilitada" \
-  || fail "Auditoría no habilitada"
-
-[[ -s "${ROOT_DIR}/audit-logs/audit-all.jsonl" ]] \
-  && pass "Audit logs consolidados" \
-  || fail "audit-all.jsonl ausente o vacío"
-
-TLS_OPERATOR=$(
-  kubectl get couchbasecluster "$CB_CLUSTER" \
-    -n "$CB_NAMESPACE" \
-    -o json \
-    | jq -r '.spec.networking.tls.nodeToNodeEncryption'
-)
-
-[[ "$TLS_OPERATOR" == "All" ]] \
-  && pass "Operator declara nodeToNodeEncryption=All" \
-  || fail "Operator declara nodeToNodeEncryption=${TLS_OPERATOR}"
-
-echo
-echo "=============================================="
-echo "RESULTADO: ${PASS} PASS / ${FAIL} FAIL"
-echo "=============================================="
-
-[[ "$FAIL" -eq 0 ]]
-EOF
-```
-
-**Salida esperada:** `validate.sh` debe contener comprobaciones de HTTPS, cifrado inter-node, RBAC positivo y negativo, mTLS, auditoría, logs consolidados y configuración TLS del Operator.
-
-- {% include step_label.html %} Asigna permisos a la suite, ejecútala y conserva su salida para detener la limpieza cuando exista al menos una validación fallida.
-
-```bash
-
 chmod +x scripts/validate.sh
+
 ./scripts/validate.sh \
   | tee outputs/validation-final.txt
 ```
 
-**Salida esperada:** La ejecución debe terminar con líneas `PASS` para cada control y `RESULTADO: <n> PASS / 0 FAIL`; la salida completa queda en `validation-final.txt`.
+**Salida esperada:** La ejecución debe terminar con líneas `PASS` para todos los controles y `RESULTADO: <n> PASS / 0 FAIL`; la evidencia queda en `outputs/validation-final.txt`.
 
 ### Tarea 10.2. Generar reporte consolidado
 
@@ -2578,7 +2521,7 @@ chmod +x scripts/validate.sh
 
 ---
 
-# 🧹 Limpieza funcional
+## 🧹 Limpieza funcional
 
 La limpieza es opcional si la siguiente práctica reutilizará el clúster. Si vas a destruir EKS, no es necesario revertir Managed TLS primero.
 
@@ -2649,15 +2592,15 @@ kubectl delete pod cb-security-client \
 
 ---
 
-# ☁️ Eliminación de Amazon EKS
+## ☁️ Eliminación de Amazon EKS
 
-- {% include step_label.html %} Confirma que las validaciones TLS se realizaron desde `cb-security-client`; esta versión no mantiene port-forward TLS hacia Pods que puedan ser reemplazados.
+- {% include step_label.html %} Confirma que la evidencia final existe antes de destruir EKS, incluso si la limpieza funcional ya eliminó `cb-security-client` y sus archivos temporales.
 
 ```bash
-kubectl get pod cb-security-client   -n "$CB_NAMESPACE"   -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
+test -s outputs/validation-final.txt   && test -s outputs/final-summary.txt   && echo "Evidencias finales disponibles; EKS puede eliminarse."
 ```
 
-**Salida esperada:** Debe mostrarse `cb-security-client` en estado `Running`; no es necesario liberar 18091 o 18093 porque las pruebas TLS no dependen de túneles locales.
+**Salida esperada:** Debe imprimirse `Evidencias finales disponibles; EKS puede eliminarse.`; la eliminación del Pod cliente durante la limpieza no afecta los archivos guardados localmente.
 
 - {% include step_label.html %} Elimina Amazon EKS utilizando el script de ciclo de vida para obtener evidencia objetiva del resultado antes de continuar con la actividad siguiente.
 

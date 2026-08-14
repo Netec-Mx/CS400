@@ -87,6 +87,7 @@ next: /lab4/lab4/
 ---
 
 ## 🧰 Herramientas y enlaces oficiales
+
 | Herramienta | Uso | Enlace |
 |---|---|---|
 | AWS CLI v2 | Autenticación AWS | https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html |
@@ -130,105 +131,10 @@ next: /lab4/lab4/
 - {% include step_label.html %} Crea `scripts/eks-cluster.sh` para disponer de acciones reproducibles `create`, `status` y `delete`, utilizando tres workers `m6i.xlarge` y los add-ons necesarios para EBS.
 
   ```bash
-  cat > scripts/eks-cluster.sh << 'EOFSCRIPT'
-  #!/usr/bin/env bash
-  set -Eeuo pipefail
+  curl -L -o scripts/eks-cluster.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab3/eks-cluster.sh
+  ```
 
-  ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-  source "${ROOT_DIR}/lab.env"
-  CONFIG_FILE="${ROOT_DIR}/manifests/eks-cluster.yaml"
-
-  require_cmd() {
-    command -v "$1" >/dev/null 2>&1 || {
-      echo "ERROR: no se encontró '$1' en PATH."
-      exit 1
-    }
-  }
-
-  prerequisites() {
-    for cmd in aws eksctl kubectl jq helm curl; do
-      require_cmd "$cmd"
-    done
-    aws sts get-caller-identity --query '{Account:Account,Arn:Arn}' --output table
-  }
-
-  write_config() {
-    cat > "$CONFIG_FILE" << YAML
-  apiVersion: eksctl.io/v1alpha5
-  kind: ClusterConfig
-
-  metadata:
-    name: ${EKS_CLUSTER}
-    region: ${AWS_REGION}
-    version: "${EKS_VERSION}"
-
-  availabilityZones:
-    - ${AWS_REGION}a
-    - ${AWS_REGION}b
-    - ${AWS_REGION}c
-
-  managedNodeGroups:
-    - name: ${EKS_NODEGROUP}
-      instanceType: m6i.xlarge
-      minSize: 3
-      desiredCapacity: 3
-      maxSize: 3
-      volumeSize: 60
-      labels:
-        workload: couchbase
-
-  addonsConfig:
-    autoApplyPodIdentityAssociations: true
-
-  addons:
-    - name: vpc-cni
-    - name: coredns
-    - name: kube-proxy
-    - name: metrics-server
-    - name: eks-pod-identity-agent
-    - name: aws-ebs-csi-driver
-  YAML
-  }
-
-  create_cluster() {
-    prerequisites
-    if eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-      echo "El clúster ya existe."
-      aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
-    else
-      write_config
-      eksctl create cluster -f "$CONFIG_FILE"
-      aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
-    fi
-    kubectl wait --for=condition=Ready node --all --timeout=10m
-    kubectl get nodes -L node.kubernetes.io/instance-type,topology.kubernetes.io/zone
-  }
-
-  status_cluster() {
-    prerequisites
-    aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null
-    kubectl get nodes -o wide
-    kubectl get storageclass
-  }
-
-  delete_cluster() {
-    prerequisites
-    if ! eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-      echo "El clúster no existe."
-      return
-    fi
-    eksctl delete cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" --wait
-    echo "Clúster eliminado."
-  }
-
-  case "${1:-}" in
-    create) create_cluster ;;
-    status) status_cluster ;;
-    delete) delete_cluster ;;
-    *) echo "Uso: $0 {create|status|delete}"; exit 2 ;;
-  esac
-  EOFSCRIPT
-
+  ```bash
   chmod +x scripts/eks-cluster.sh
   bash -n scripts/eks-cluster.sh
   ```
@@ -1776,10 +1682,10 @@ En esta tarea generarás concurrencia controlada desde un cliente Python y corre
 
 | Indicador | Valor |
 |---|---|
-| Active Requests pico | *__*________ |
-| P95 cliente Python | *__*________ |
-| P99 cliente Python | *__*________ |
-| Consulta más lenta visible | *__*________ |
+| Active Requests pico |  |
+| P95 cliente Python |  |
+| P99 cliente Python |  |
+| Consulta más lenta visible |  |
 
 **Salida esperada:** completa la tabla con observaciones reales de Query Monitor y compáralas con P95 y P99 del cliente; los valores dependen de la carga y del momento exacto de observación.
 
@@ -1798,193 +1704,9 @@ En esta tarea consolidarás evidencias, validarás los resultados mínimos del l
 - {% include step_label.html %} Crea una validación final basada en volumen, índices, planes, perfiles, prepared statement y resultados de concurrencia, evitando exigir costos o tiempos específicos.
 
   ```bash
-  cat > scripts/validate.sh << 'EOFVAL'
-  #!/usr/bin/env bash
-  set -Eeuo pipefail
-
-  ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-  # Cargar lab.env únicamente si existe.
-  if [[ -f "${ROOT_DIR}/lab.env" ]]; then
-    source "${ROOT_DIR}/lab.env"
-  fi
-
-  # Validar variables necesarias.
-  : "${CB_USER:?ERROR: CB_USER no está definido}"
-  : "${CB_PASS:?ERROR: CB_PASS no está definido}"
-
-  PASS=0
-  FAIL=0
-
-  pass() {
-    echo "  ✅ PASS: $1"
-    PASS=$((PASS + 1))
-  }
-
-  fail() {
-    echo "  ❌ FAIL: $1"
-    FAIL=$((FAIL + 1))
-  }
-
-  query() {
-    local statement="$1"
-
-    curl --fail-with-body -sS \
-      -u "${CB_USER}:${CB_PASS}" \
-      -X POST \
-      http://localhost:8093/query/service \
-      --data-urlencode "statement=${statement}"
-  }
-
-  echo "================================================"
-  echo "VALIDACIÓN FINAL - LAB 3"
-  echo "================================================"
-
-  # ------------------------------------------------------------
-  # Validar cantidad de documentos
-  # ------------------------------------------------------------
-
-  COUNT_RESPONSE=$(
-    query '
-      SELECT RAW COUNT(*)
-      FROM `travel-sample`.inventory.route_lab3;
-    '
-  )
-
-  COUNT=$(
-    jq -r '.results[0] // 0' \
-      <<< "$COUNT_RESPONSE"
-  )
-
-  if [[ "$COUNT" -ge 500000 ]]; then
-    pass "route_lab3 tiene ${COUNT} documentos"
-  else
-    fail "route_lab3 tiene ${COUNT} documentos; se esperaban al menos 500000"
-  fi
-
-  # ------------------------------------------------------------
-  # Validar índices
-  # ------------------------------------------------------------
-
-  for idx in \
-    idx_route_lab3_primary \
-    idx_route_lab3_airline_price \
-    idx_route_lab3_stops_seats
-  do
-
-    FOUND_RESPONSE=$(
-      query "
-        SELECT RAW COUNT(*)
-        FROM system:indexes
-        WHERE name = \"${idx}\";
-      "
-    )
-
-    FOUND=$(
-      jq -r '.results[0] // 0' \
-        <<< "$FOUND_RESPONSE"
-    )
-
-    if [[ "$FOUND" -gt 0 ]]; then
-      pass "Índice ${idx} existe"
-    else
-      fail "Índice ${idx} falta"
-    fi
-  done
-
-  # ------------------------------------------------------------
-  # Validar plan optimizado Q1
-  # ------------------------------------------------------------
-
-  PLAN_FILE="${ROOT_DIR}/plans/plan_q1_after.json"
-
-  if [[ -s "$PLAN_FILE" ]]; then
-    if grep -q "idx_route_lab3_airline_price" "$PLAN_FILE"; then
-      pass "Plan Q1 usa idx_route_lab3_airline_price"
-    else
-      fail "Plan Q1 no muestra idx_route_lab3_airline_price"
-    fi
-  else
-    fail "No existe plan_q1_after.json o está vacío"
-  fi
-
-  # ------------------------------------------------------------
-  # Validar PROFILE
-  # ------------------------------------------------------------
-
-  if [[ -s "${ROOT_DIR}/profiles/profile_q1.json" ]]; then
-    pass "PROFILE Q1 existe"
-  else
-    fail "PROFILE Q1 falta"
-  fi
-
-  if [[ -s "${ROOT_DIR}/profiles/profile_q2.json" ]]; then
-    pass "PROFILE Q2 existe"
-  else
-    fail "PROFILE Q2 falta"
-  fi
-
-  # ------------------------------------------------------------
-  # Validar benchmark concurrente
-  # ------------------------------------------------------------
-
-  CONCURRENT_FILE="${ROOT_DIR}/benchmarks/concurrent-results.json"
-
-  if [[ -s "$CONCURRENT_FILE" ]]; then
-
-    SUCCESS=$(
-      jq -r '.success // 0' \
-        "$CONCURRENT_FILE"
-    )
-
-    FAILED=$(
-      jq -r '.failed // 0' \
-        "$CONCURRENT_FILE"
-    )
-
-    pass "Benchmark concurrente existe (${SUCCESS} exitosas, ${FAILED} fallidas)"
-
-  else
-    fail "Benchmark concurrente falta o está vacío"
-  fi
-
-  # ------------------------------------------------------------
-  # Validar prepared statement
-  # ------------------------------------------------------------
-
-  PREPARED_RESPONSE=$(
-    query '
-      SELECT RAW COUNT(*)
-      FROM system:prepareds
-      WHERE name LIKE "%stmt_routes_by_airline%";
-    '
-  )
-
-  PREPARED=$(
-    jq -r '.results[0] // 0' \
-      <<< "$PREPARED_RESPONSE"
-  )
-
-  if [[ "$PREPARED" -gt 0 ]]; then
-    pass "Prepared stmt_routes_by_airline está presente"
-  else
-    fail "Prepared stmt_routes_by_airline está ausente"
-  fi
-
-  # ------------------------------------------------------------
-  # Resultado final
-  # ------------------------------------------------------------
-
-  echo
-  echo "================================================"
-  echo "RESULTADO: ${PASS} PASS / ${FAIL} FAIL"
-  echo "================================================"
-
-  if [[ "$FAIL" -ne 0 ]]; then
-    exit 1
-  fi
-  EOFVAL
+  curl -L -o scripts/validate.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab3/validate.sh
   ```
+
   ```bash
   chmod +x scripts/validate.sh
   bash -n scripts/validate.sh
@@ -2023,7 +1745,7 @@ En esta tarea consolidarás evidencias, validarás los resultados mínimos del l
 
 ---
 
-# 🧹 Eliminación de Amazon EKS
+## 🧹 Eliminación de Amazon EKS
 
 - {% include step_label.html %} Detén con `Ctrl+C` los port-forward de 8091 y 8093 antes de iniciar la eliminación de infraestructura.
 

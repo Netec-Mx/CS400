@@ -130,94 +130,15 @@ source lab.env
 
 - {% include step_label.html %} Crea `scripts/eks-cluster.sh` para administrar EKS de forma reproducible con cuatro workers `m6i.xlarge`, validando dependencias antes de cada acción.
 
-```bash
-cat > scripts/eks-cluster.sh << 'SCRIPTEOF'
-#!/usr/bin/env bash
-set -Eeuo pipefail
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "${ROOT_DIR}/lab.env"
-CONFIG_FILE="${ROOT_DIR}/manifests/eks-cluster.yaml"
+  ```bash
+  curl -L -o scripts/eks-cluster.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab5/eks-cluster.sh
+  ```
 
-require_cmd() {
-  command -v "$1" >/dev/null 2>&1 || { echo "ERROR: no se encontró '$1' en PATH."; exit 1; }
-}
-
-prerequisites() {
-  for cmd in aws eksctl kubectl jq helm curl; do require_cmd "$cmd"; done
-  aws sts get-caller-identity --query '{Account:Account,Arn:Arn}' --output table
-}
-
-write_config() {
-  cat > "$CONFIG_FILE" << YAML
-apiVersion: eksctl.io/v1alpha5
-kind: ClusterConfig
-metadata:
-  name: ${EKS_CLUSTER}
-  region: ${AWS_REGION}
-  version: "${EKS_VERSION}"
-managedNodeGroups:
-  - name: ${EKS_NODEGROUP}
-    instanceType: m6i.xlarge
-    minSize: 4
-    desiredCapacity: 4
-    maxSize: 4
-    volumeSize: 80
-    labels:
-      workload: couchbase
-addonsConfig:
-  autoApplyPodIdentityAssociations: true
-addons:
-  - name: vpc-cni
-  - name: coredns
-  - name: kube-proxy
-  - name: metrics-server
-  - name: eks-pod-identity-agent
-  - name: aws-ebs-csi-driver
-YAML
-}
-
-create_cluster() {
-  prerequisites
-  if eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-    echo "El clúster ya existe; se actualizará kubeconfig."
-  else
-    write_config
-    eksctl create cluster -f "$CONFIG_FILE"
-  fi
-  aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
-  kubectl wait --for=condition=Ready node --all --timeout=10m
-  kubectl get nodes -L node.kubernetes.io/instance-type,topology.kubernetes.io/zone
-}
-
-status_cluster() {
-  prerequisites
-  aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null
-  kubectl get nodes -o wide
-  kubectl get storageclass
-}
-
-delete_cluster() {
-  prerequisites
-  if ! eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
-    echo "El clúster no existe."
-    return
-  fi
-  eksctl delete cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" --wait
-}
-
-case "${1:-}" in
-  create) create_cluster ;;
-  status) status_cluster ;;
-  delete) delete_cluster ;;
-  *) echo "Uso: $0 {create|status|delete}"; exit 2 ;;
-esac
-SCRIPTEOF
-```
-```bash
-chmod +x scripts/eks-cluster.sh
-bash -n scripts/eks-cluster.sh
-./scripts/eks-cluster.sh create
-```
+  ```bash
+  chmod +x scripts/eks-cluster.sh
+  bash -n scripts/eks-cluster.sh
+  ./scripts/eks-cluster.sh create
+  ```
 
 **Salida esperada:** `bash -n` no debe imprimir errores y la acción `create` debe finalizar con cuatro workers EKS en estado `Ready`, mostrando tipo y zona.
 
@@ -1538,91 +1459,15 @@ En esta tarea validarás los resultados mínimos, consolidarás evidencias y ret
 
 - {% include step_label.html %} Crea `validate.sh` para comprobar FTS, Eventing, Analytics y archivos de comparación, reportando cada criterio como PASS o FAIL sin umbrales rígidos.
 
-```bash
-cat > scripts/validate.sh << 'EOFVAL'
-#!/usr/bin/env bash
-set -Eeuo pipefail
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "${ROOT_DIR}/lab.env"
-PASS=0; FAIL=0
-pass(){ echo "  ✅ PASS: $1"; PASS=$((PASS+1)); }
-fail(){ echo "  ❌ FAIL: $1"; FAIL=$((FAIL+1)); }
+  ```bash
+  curl -L -o scripts/validate.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab5/validate.sh
+  ```
 
-FTS_RESPONSE=$(curl -sS -u "${CB_USER}:${CB_PASS}"     -X POST -H 'Content-Type: application/json'     http://localhost:8094/api/bucket/travel-sample/scope/inventory/index/hotel-search-lab5/query     -d '{"query":{"match_all":{}},"size":1}')
-
-FTS_FAILED=$(echo "$FTS_RESPONSE" | jq -r '.status.failed // 0')
-FTS_COUNT=$(echo "$FTS_RESPONSE" | jq -r '.total_hits // 0')
-
-[[ "$FTS_FAILED" -eq 0 && "$FTS_COUNT" -ge 6 ]]     && pass "FTS contiene ${FTS_COUNT} documentos"     || fail "FTS no contiene los 6 documentos esperados"
-
-EN_HITS=$(jq '.total_hits // 0' "${ROOT_DIR}/outputs/search-en.json")
-ES_HITS=$(jq '.total_hits // 0' "${ROOT_DIR}/outputs/search-es.json")
-FUZZY_HITS=$(jq '.total_hits // 0' "${ROOT_DIR}/outputs/search-fuzzy.json")
-[[ "$EN_HITS" -gt 0 ]] && pass "Búsqueda inglesa retorna resultados" || fail "Búsqueda inglesa sin resultados"
-[[ "$ES_HITS" -gt 0 ]] && pass "Búsqueda española retorna resultados" || fail "Búsqueda española sin resultados"
-[[ "$FUZZY_HITS" -gt 0 ]] && pass "Fuzzy search retorna resultados" || fail "Fuzzy search sin resultados"
-
-EVENTING_RESPONSE=$(
-  curl -sS -u "${CB_USER}:${CB_PASS}" \
-    'http://localhost:8096/api/v1/status/booking-enrichment?bucket=lab5-eventing&scope=app'
-)
-
-EVENTING_STATUS=$(
-  echo "$EVENTING_RESPONSE" \
-  | jq -r '.app.composite_status // "unknown"'
-)
-
-EVENTING_DEPLOYMENT=$(
-  echo "$EVENTING_RESPONSE" \
-  | jq -r '.app.deployment_status // false'
-)
-
-EVENTING_PROCESSING=$(
-  echo "$EVENTING_RESPONSE" \
-  | jq -r '.app.processing_status // false'
-)
-
-if [[ "$EVENTING_STATUS" == "deployed" \
-      && "$EVENTING_DEPLOYMENT" == "true" \
-      && "$EVENTING_PROCESSING" == "true" ]]; then
-
-  pass "Eventing deployed y processing"
-
-else
-
-  fail "Eventing status=${EVENTING_STATUS}, deployment=${EVENTING_DEPLOYMENT}, processing=${EVENTING_PROCESSING}"
-
-fi
-
-SOURCE_COUNT=$(curl -sS -u "${CB_USER}:${CB_PASS}" -X POST http://localhost:8093/query/service \
-  --data-urlencode 'statement=SELECT RAW COUNT(*) FROM `lab5-eventing`.app.bookings;' | jq '.results[0] // 0')
-ENRICHED_COUNT=$(curl -sS -u "${CB_USER}:${CB_PASS}" -X POST http://localhost:8093/query/service \
-  --data-urlencode 'statement=SELECT RAW COUNT(*) FROM `lab5-eventing`.app.bookings_enriched;' | jq '.results[0] // 0')
-[[ "$ENRICHED_COUNT" -ge "$SOURCE_COUNT" ]] && pass "Eventing enriqueció el conjunto vigente" || fail "source=${SOURCE_COUNT}, enriched=${ENRICHED_COUNT}"
-
-ANALYTICS_WINDOW=$(curl -sS -u "${CB_USER}:${CB_PASS}" -X POST http://localhost:8095/analytics/service \
-  --data-urlencode 'statement=
-    SELECT VALUE COUNT(*) FROM (
-      SELECT h.country, RANK() OVER (PARTITION BY h.country ORDER BY h.name) AS ranking
-      FROM `travel-sample`.inventory.hotel AS h
-      WHERE h.country IS NOT MISSING LIMIT 100
-    ) AS ranked;' | jq '.results[0] // 0')
-[[ "$ANALYTICS_WINDOW" -gt 0 ]] && pass "Window function Analytics funciona" || fail "Window function Analytics sin resultados"
-
-[[ -s "${ROOT_DIR}/metrics/query-service-comparison.json" ]] && pass "Comparación Query generada" || fail "Falta comparación Query"
-[[ -s "${ROOT_DIR}/metrics/analytics-service-comparison.json" ]] && pass "Comparación Analytics generada" || fail "Falta comparación Analytics"
-
-echo "=============================================="
-echo "RESULTADO: ${PASS} PASS / ${FAIL} FAIL"
-echo "=============================================="
-[[ "$FAIL" -eq 0 ]]
-EOFVAL
-```
-```bash
-chmod +x scripts/validate.sh
-bash -n scripts/validate.sh
-./scripts/validate.sh
-```
+  ```bash
+  chmod +x scripts/validate.sh
+  bash -n scripts/validate.sh
+  ./scripts/validate.sh
+  ```
 
 **Salida esperada:** `bash -n scripts/validate.sh` debe finalizar sin salida y la ejecución debe reportar todos los criterios como PASS antes de permitir la limpieza.
 
@@ -1744,11 +1589,12 @@ curl -sS -u "$CB_USER:$CB_PASS" -X DELETE http://localhost:8091/pools/default/bu
 {% assign results = site.data.task-results[page.slug].results %}
 {% capture r10 %}{{ results[9] }}{% endcapture %}
 {% include task-result.html title="Tarea finalizada" content=r10 %}
+
 {% include support-prompt.html task="tarea10" %}
 
 ---
 
-# 🧹 Eliminación de Amazon EKS
+## 🧹 Eliminación de Amazon EKS
 
 - {% include step_label.html %} Detén con `Ctrl+C` los cinco port-forward activos para liberar puertos locales y cerrar sesiones antes de eliminar la infraestructura de Amazon EKS.
 
