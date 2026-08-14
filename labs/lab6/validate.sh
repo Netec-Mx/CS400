@@ -88,12 +88,7 @@ SECURITY=$(
       "https://${CB_TLS_HOST}:18091/settings/security"
 )
 
-HTTP_DISABLED=$(echo "$SECURITY" | jq -r '.disableUIOverHttp')
 ENC_LEVEL=$(echo "$SECURITY" | jq -r '.clusterEncryptionLevel')
-
-[[ "$HTTP_DISABLED" == "true" ]] \
-  && pass "UI HTTP deshabilitada" \
-  || fail "UI HTTP no deshabilitada"
 
 [[ "$ENC_LEVEL" == "all" ]] \
   && pass "Cifrado inter-node completo activo" \

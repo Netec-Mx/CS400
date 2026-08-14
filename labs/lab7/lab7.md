@@ -109,6 +109,10 @@ printf 'AWS_REGION=%s EKS_CLUSTER=%s EKS_VERSION=%s CB_NAMESPACE=%s\n' \
 
 - {% include step_label.html %} Crea `scripts/eks-cluster.sh` con tres workers `m6i.xlarge` repartidos entre tres Availability Zones para validar el resultado antes de continuar.
 
+  ```bash
+  curl -L -o scripts/eks-cluster.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab7/eks-cluster.sh
+  ```
+
 ```bash
 cat > scripts/eks-cluster.sh << 'SHEOF'
 #!/usr/bin/env bash
@@ -1354,6 +1358,10 @@ kubectl top pods -n couchbase \
 
 - {% include step_label.html %} Crea una validación estructural de inputs, resultados, escenarios y tres Availability Zones sin depender de precios ni fechas de saturación rígidas.
 
+  ```bash
+  curl -L -o scripts/validate.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab7/validate.sh
+  ```
+
 ```bash
 cat > scripts/validate.sh << 'EOFVAL'
 #!/usr/bin/env bash
@@ -1471,7 +1479,7 @@ find models outputs metrics scripts \
 
 ---
 
-# ☁️ Eliminación de Amazon EKS
+## ☁️ Eliminación de Amazon EKS
 
 - {% include step_label.html %} Detén con `Ctrl+C` el port-forward de 8091 para liberar el puerto local y evitar conexiones activas mientras se elimina la infraestructura EKS.
 

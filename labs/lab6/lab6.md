@@ -1932,7 +1932,51 @@ MSYS_NO_PATHCONV=1 kubectl exec \
 
 **Salida esperada:** `audit-descriptors.json` debe contener los descriptors reales de Couchbase 7.6.2 con `id`, `name`, `module` y `description`.
 
-- {% include step_label.html %} Filtra eventos relacionados con autenticación, usuarios, Query y documentos para revisar sólo los descriptors relevantes a las pruebas de seguridad.
+- {% include step_label.html %} Consulta los descriptors filterable disponibles en Couchbase Server 7.6.2 para identificar los eventos reales de la versión antes de modificar su estado.
+
+```bash
+MSYS_NO_PATHCONV=1 kubectl exec \
+  -n "$CB_NAMESPACE" \
+  cb-security-client \
+  -- \
+  curl -sS \
+    --cacert /tmp/lab6-certs/ca.crt \
+    -u "$CB_USER:$CB_PASS" \
+    "https://${CB_TLS_HOST}:18091/settings/audit/descriptors" \
+  | tee outputs/audit-descriptors.json \
+  | jq '[.[] | {
+      id,
+      name,
+      module,
+      description
+    }]'
+```
+
+**Salida esperada:** `audit-descriptors.json` ebe contener los eventos filterable reales de Couchbase 7.6.2 con sus campos id, name, module y description.
+
+- {% include step_label.html %} Consulta también los eventos non-filterable para identificar acciones que siempre serán auditadas cuando el servicio de auditoría permanezca habilitado.
+
+```bash
+MSYS_NO_PATHCONV=1 kubectl exec \
+  -n "$CB_NAMESPACE" \
+  cb-security-client \
+  -- \
+  curl -sS \
+    --cacert /tmp/lab6-certs/ca.crt \
+    -u "$CB_USER:$CB_PASS" \
+    "https://${CB_TLS_HOST}:18091/settings/audit/nonFilterableDescriptors" \
+  | tee outputs/audit-non-filterable-descriptors.json \
+  | jq '[.[] | {
+      id,
+      name,
+      module,
+      description
+    }]'
+```
+
+**Salida esperada:** El archivo debe incluir los eventos non-filterable de la versión; entre ellos pueden aparecer login success y login failure, que no pueden deshabilitarse individualmente.
+
+- {% include step_label.html %} Filtra descriptors relacionados con autenticación, usuarios, Query y documentos para identificar los eventos que serán relevantes durante las pruebas de seguridad.
 
 ```bash
 jq '
@@ -1951,11 +1995,11 @@ jq '
   | tee outputs/audit-security-descriptors.json
 ```
 
-**Salida esperada:** `audit-security-descriptors.json` debe contener los descriptors que coincidan con autenticación, usuarios, Query o mutaciones; la cantidad puede variar por versión.
+**Salida esperada:** audit-security-descriptors.json debe mostrar los eventos filterable relacionados con autenticación, Query, usuarios o documentos; los IDs pueden variar entre versiones.
 
-### Tarea 6.2. Habilitar auditoría
+### Tarea 6.2. Habilitar auditoría y eventos necesarios
 
-- {% include step_label.html %} Captura la configuración actual de auditoría antes de cambiar rotación y retención.
+- {% include step_label.html %} Captura la configuración vigente antes de modificarla para conservar evidencia del estado de auditoría, rotación, retención y eventos actualmente deshabilitados.
 
 ```bash
 MSYS_NO_PATHCONV=1 kubectl exec \
@@ -1977,9 +2021,76 @@ MSYS_NO_PATHCONV=1 kubectl exec \
     }'
 ```
 
-**Salida esperada:** El JSON debe registrar el estado previo de auditoría, ruta, rotación, tamaño, retención y lista de eventos deshabilitados.
+**Salida esperada:** El JSON debe registrar el estado previo de auditdEnabled, la ruta de logs, rotación, retención y todos los IDs filterable presentes en disabled.
 
-- {% include step_label.html %} Habilita auditoría con rotación diaria, 20 MiB de tamaño máximo y siete días de retención para registros rotados.
+- {% include step_label.html %} Obtén dinámicamente los IDs de authentication succeeded y SELECT statement de N1QL para evitar codificar identificadores históricos en el laboratorio.
+
+```bash
+AUTH_SUCCESS_ID=$(
+  jq -r '
+    .[]
+    | select(
+        .module == "memcached"
+        and (.name | ascii_downcase) == "authentication succeeded"
+      )
+    | .id
+  ' outputs/audit-descriptors.json \
+  | head -n1
+)
+
+N1QL_SELECT_ID=$(
+  jq -r '
+    .[]
+    | select(
+        .module == "n1ql"
+        and (.name | ascii_downcase) == "select statement"
+      )
+    | .id
+  ' outputs/audit-descriptors.json \
+  | head -n1
+)
+
+echo "Authentication succeeded ID: $AUTH_SUCCESS_ID"
+echo "N1QL SELECT ID             : $N1QL_SELECT_ID"
+
+[[ -n "$AUTH_SUCCESS_ID" && -n "$N1QL_SELECT_ID" ]] || {
+  echo "ERROR: no fue posible localizar los eventos requeridos."
+  exit 1
+}
+```
+
+**Salida esperada:** Deben mostrarse dos IDs válidos; en Couchbase Server 7.6.2 normalmente corresponden a authentication succeeded y SELECT statement del módulo n1ql.
+
+- {% include step_label.html %} Conserva la lista de eventos deshabilitados pero retira únicamente los IDs que se utilizarán en las pruebas, evitando habilitar indiscriminadamente todos los eventos filterable.
+
+```bash
+CURRENT_DISABLED=$(
+  MSYS_NO_PATHCONV=1 kubectl exec \
+    -n "$CB_NAMESPACE" \
+    cb-security-client \
+    -- \
+    curl -sS \
+      --cacert /tmp/lab6-certs/ca.crt \
+      -u "$CB_USER:$CB_PASS" \
+      "https://${CB_TLS_HOST}:18091/settings/audit" \
+  | jq -r \
+      --argjson auth "$AUTH_SUCCESS_ID" \
+      --argjson query "$N1QL_SELECT_ID" '
+        [
+          .disabled[]
+          | select(. != $auth and . != $query)
+        ]
+        | join(",")
+      '
+)
+
+echo "Lista disabled ajustada:"
+echo "$CURRENT_DISABLED"
+```
+
+**Salida esperada:** La salida debe conservar los demás IDs deshabilitados y excluir los identificadores seleccionados para autenticación correcta y SELECT de N1QL.
+
+- {% include step_label.html %} Habilita auditoría, configura rotación y retención y aplica la lista ajustada para registrar específicamente los eventos necesarios durante las pruebas posteriores.
 
 ```bash
 MSYS_NO_PATHCONV=1 kubectl exec \
@@ -1994,13 +2105,40 @@ MSYS_NO_PATHCONV=1 kubectl exec \
     -d 'auditdEnabled=true' \
     -d 'rotateInterval=86400' \
     -d 'rotateSize=20971520' \
-    -d 'pruneAge=604800'
+    -d 'pruneAge=604800' \
+    --data-urlencode "disabled=${CURRENT_DISABLED}" \
+    -o /dev/null \
+    -w 'Audit config: HTTP %{http_code}\n'
 ```
 
-> **NOTA:** En producción selecciona los eventos según riesgo, volumen, retención y obligaciones regulatorias; auditar indiscriminadamente puede generar volumen innecesario.
-{: .lab-note .info .compact}
+**Salida esperada:** El comando debe devolver Audit config: HTTP 200, indicando que Couchbase aceptó la configuración de auditoría, rotación, retención y filtrado.
 
-**Salida esperada:** La operación debe finalizar sin error; la lectura final de Tarea 6.4 debe reflejar los cuatro valores configurados.
+- {% include step_label.html %} Verifica inmediatamente que auditoría esté activa y que los dos eventos seleccionados ya no aparezcan en la lista disabled.
+
+```bash
+MSYS_NO_PATHCONV=1 kubectl exec \
+  -n "$CB_NAMESPACE" \
+  cb-security-client \
+  -- \
+  curl -sS \
+    --cacert /tmp/lab6-certs/ca.crt \
+    -u "$CB_USER:$CB_PASS" \
+    "https://${CB_TLS_HOST}:18091/settings/audit" \
+  | jq \
+      --argjson auth "$AUTH_SUCCESS_ID" \
+      --argjson query "$N1QL_SELECT_ID" '{
+        auditdEnabled,
+        rotateInterval,
+        rotateSize,
+        pruneAge,
+        authenticationSucceededDisabled:
+          (.disabled | index($auth)),
+        n1qlSelectDisabled:
+          (.disabled | index($query))
+      }'
+```
+
+**Salida esperada:** Debe mostrarse auditdEnabled=true, los valores de rotación configurados y null para authenticationSucceededDisabled y n1qlSelectDisabled.
 
 ### Tarea 6.3. Generar actividad auditable
 
@@ -2180,7 +2318,6 @@ EOF
 - {% include step_label.html %} Asigna permisos al recolector y ejecútalo para consolidar los registros distribuidos en un archivo local apto para análisis y evidencia.
 
 ```bash
-
 chmod +x scripts/collect-audit-logs.sh
 ./scripts/collect-audit-logs.sh
 ```
@@ -2439,7 +2576,6 @@ EOF
 - {% include step_label.html %} Muestra la matriz final para comprobar que cada control tenga estado, evidencia y observaciones antes de generar el reporte consolidado.
 
 ```bash
-
 cat outputs/security-posture-final.md
 ```
 
