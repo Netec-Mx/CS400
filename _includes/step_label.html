@@ -1,0 +1,54 @@
+{%- comment -%}
+Emite "Paso N." autoincremental POR PÁGINA (no global del sitio).
+Uso típico: - {% include step_label.html %} Texto del paso…
+
+Parámetros:
+  step      : número fijo (opcional; si no, autoincrementa)
+  start_at  : primer número cuando autoincrementa (default: 1)
+  prefix    : texto antes del número (default: "Paso")
+  suffix    : texto después del número (default: ".")
+  bold      : "true"/"false" => **negritas** (default: true)
+  series    : secuencia alternativa: "a" (default), "b", "c", "d"
+              (sirve para reiniciar numeración en la misma página)
+{%- endcomment -%}
+
+{%- assign prefix = include.prefix | default: "Paso" -%}
+{%- assign suffix = include.suffix | default: "." -%}
+{%- assign bold   = include.bold   | default: "true" -%}
+{%- assign start  = include.start_at | default: 1 | plus: 0 -%}
+{%- assign series = include.series | default: "a" -%}
+{%- assign start_minus_1 = start | minus: 1 -%}
+
+{%- if include.step -%}
+  {%- assign n = include.step | plus: 0 -%}
+{%- else -%}
+
+  {%- if series == "a" -%}
+    {%- assign __cnt = step_text_counter_a | default: start_minus_1 | plus: 0 -%}
+    {%- assign __cnt = __cnt | plus: 1 -%}
+    {%- assign step_text_counter_a = __cnt -%}
+    {%- assign n = __cnt -%}
+
+  {%- elsif series == "b" -%}
+    {%- assign __cnt = step_text_counter_b | default: start_minus_1 | plus: 0 -%}
+    {%- assign __cnt = __cnt | plus: 1 -%}
+    {%- assign step_text_counter_b = __cnt -%}
+    {%- assign n = __cnt -%}
+
+  {%- elsif series == "c" -%}
+    {%- assign __cnt = step_text_counter_c | default: start_minus_1 | plus: 0 -%}
+    {%- assign __cnt = __cnt | plus: 1 -%}
+    {%- assign step_text_counter_c = __cnt -%}
+    {%- assign n = __cnt -%}
+
+  {%- else -%}
+    {%- assign __cnt = step_text_counter_d | default: start_minus_1 | plus: 0 -%}
+    {%- assign __cnt = __cnt | plus: 1 -%}
+    {%- assign step_text_counter_d = __cnt -%}
+    {%- assign n = __cnt -%}
+  {%- endif -%}
+
+{%- endif -%}
+
+{%- capture label -%}{{ prefix }} {{ n }}{{ suffix }}{%- endcapture -%}
+{%- if bold == "true" -%}**{{ label }}**{%- else -%}{{ label }}{%- endif -%}

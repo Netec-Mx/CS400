@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cb-cs400-webui-public
+  namespace: couchbase
+spec:
+  type: LoadBalancer
+
+  selector:
+    couchbase_cluster: cb-cs400
+    couchbase_server: "true"
+
+  sessionAffinity: ClientIP
+
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+
+  ports:
+    - name: admin-http
+      protocol: TCP
+      port: 8091
+      targetPort: 8091
