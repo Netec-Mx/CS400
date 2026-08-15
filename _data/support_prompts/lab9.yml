@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 9
+# El slug del laboratorio debe ser: lab9
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 9 de Couchbase Server.
+
+    Validé tres Availability Zones y Server Groups del clúster primario,
+    correlacioné Data Pods con workers y zonas, comprobé las políticas
+    conflictResolution y analicé active y replica vBuckets del bucket DR.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 9 de Couchbase Server.
+
+    Inicié un workload continuo de disponibilidad, pausé temporalmente
+    Operator y ejecuté graceful failover sobre un Data node, midiendo
+    su duración e impacto en operaciones y latencia antes de recuperarlo.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 9 de Couchbase Server.
+
+    Simulé la pérdida abrupta de un Data Pod con Operator pausado,
+    ejecuté hard failover mediante su otpNode, observé el workload
+    durante la interrupción y restauré posteriormente la topología.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 9 de Couchbase Server.
+
+    Validé la configuración de auto-failover, eliminé un Data Pod sin
+    ejecutar failover manual y medí el tiempo hasta que Couchbase lo
+    marcó inactiveFailed después del timeout configurado.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 9 de Couchbase Server.
+
+    Configuré XDCR administrado desde Cluster A hacia Cluster B mediante
+    Couchbase Kubernetes Operator y creé una replicación filtrada para
+    copiar únicamente documentos cuyo ID comienza con order::.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 9 de Couchbase Server.
+
+    Validé el Advanced Filtering de XDCR desde el clúster DR comprobando
+    que order::* se replicara y internal::* permaneciera excluido, y
+    revisé backlog y estadísticas complementarias del pipeline.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 9 de Couchbase Server.
+
+    Configuré replicaciones bidireccionales para buckets seqno y lww,
+    generé escrituras conflictivas desde ambos clústeres y comprobé
+    cómo Couchbase resolvió los conflictos hasta alcanzar convergencia.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 9 de Couchbase Server.
+
+    Simulé un desastre del primario durante escrituras activas, pausé
+    XDCR, comparé los ACK confirmados con los documentos disponibles
+    en DR y calculé el RPO experimental y el RTO de aplicación.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 9 de Couchbase Server.
+
+    Construí un runbook de Disaster Recovery utilizando los tiempos
+    medidos de graceful, hard, auto-failover y DR, separando mantenimiento,
+    fallo de nodo y desastre completo del sitio primario.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 9 de Couchbase Server.
+
+    Reactivé la replicación DR, ejecuté una validación integral de zonas,
+    Server Groups, health, vBuckets, XDCR, filtering, RPO y RTO y
+    consolidé todas las evidencias principales en un reporte final.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

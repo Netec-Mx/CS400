@@ -4,59 +4,59 @@ cs400:
   intro: "DESCRIPCIÓN_DEL_CURSO_AQUI"
   labs:
 
-    - id: lab1 
-      title: "NOMBRE_DE_LA_PRACTICA_1" # NOMBRE DE LA PRACTICA
-      url:  "/lab1/lab1/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab1
+      title: "Análisis de la arquitectura y distribución interna de un clúster"
+      url: "/lab1/lab1/"
+      duration: "60 min"
+      desc: "Despliega Couchbase Enterprise sobre Amazon EKS y analiza su topología MDS, servicios, Cluster Map y vBuckets."
 
-    - id: lab2 
-      title: "NOMBRE_DE_LA_PRACTICA_2" # NOMBRE DE LA PRACTICA
-      url:  "/lab2/lab2/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab2
+      title: "Configuración y análisis del Data Service bajo presión de memoria"
+      url: "/lab2/lab2/"
+      duration: "84 min"
+      desc: "Analiza Data Service bajo presión de memoria, ejection, cache misses, Disk Write Queue y Sync Durability en Couchbase."
 
-    - id: lab3 
-      title: "NOMBRE_DE_LA_PRACTICA_3" # NOMBRE DE LA PRACTICA
-      url:  "/lab3/lab3/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab3
+      title: "Diagnóstico y optimización de consultas SQL++"
+      url: "/lab3/lab3/"
+      duration: "108 min"
+      desc: "Diagnostica y optimiza consultas SQL++ con EXPLAIN, ADVISE, CBO, PROFILE, prepared statements y carga concurrente."
 
-    - id: lab4 
-      title: "NOMBRE_DE_LA_PRACTICA_4" # NOMBRE DE LA PRACTICA
-      url:  "/lab4/lab4/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab4
+      title: "Diseño de una estrategia de indexación para alta carga"
+      url: "/lab4/lab4/"
+      duration: "90 min"
+      desc: "Diseña y valida una estrategia GSI con índices simples, compuestos, parciales, covering, particionados y réplicas."
 
-    - id: lab5 
-      title: "NOMBRE_DE_LA_PRACTICA_5" # NOMBRE DE LA PRACTICA
-      url:  "/lab5/lab5/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab5
+      title: "Implementación de búsqueda, automatización y análisis integrado"
+      url: "/lab5/lab5/"
+      duration: "78 min"
+      desc: "Integra Search, Eventing y Analytics con FTS multilingüe, procesamiento reactivo, DCP y análisis OLAP en Couchbase."
 
-    - id: lab6 
-      title: "NOMBRE_DE_LA_PRACTICA_6" # NOMBRE DE LA PRACTICA
-      url:  "/lab6/lab6/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab6
+      title: "Implementación de seguridad en un entorno productivo"
+      url: "/lab6/lab6/"
+      duration: "84 min"
+      desc: "Implementa RBAC granular, Managed TLS, X.509, mTLS, cifrado entre nodos, auditoría y hardening de Couchbase."
 
-    - id: lab7 
-      title: "NOMBRE_DE_LA_PRACTICA_7" # NOMBRE DE LA PRACTICA
-      url:  "/lab7/lab7/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab7
+      title: "Diseño de sizing y topología para una carga empresarial"
+      url: "/lab7/lab7/"
+      duration: "78 min"
+      desc: "Dimensiona Couchbase para una carga empresarial mediante sizing, MDS, Server Groups, crecimiento y validación en EKS."
 
-    - id: lab8 
-      title: "NOMBRE_DE_LA_PRACTICA_8" # NOMBRE DE LA PRACTICA
-      url:  "/lab8/lab8/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab8
+      title: "Escalamiento y rebalanceo del clúster bajo carga"
+      url: "/lab8/lab8/"
+      duration: "96 min"
+      desc: "Valida scale-out, scale-in, SwapRebalance y reconciliación bajo carga midiendo vBuckets, latencia, errores y throughput."
 
-    - id: lab9 
-      title: "NOMBRE_DE_LA_PRACTICA_9" # NOMBRE DE LA PRACTICA
-      url:  "/lab9/lab9/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab9
+      title: "Simulación de fallos y recuperación entre clústeres"
+      url: "/lab9/lab9/"
+      duration: "78 min"
+      desc: "Valida failover, Server Groups, XDCR filtrado, conflictos, RPO y RTO mediante una arquitectura primaria y DR."
 
     - id: lab10 
       title: "NOMBRE_DE_LA_PRACTICA_10" # NOMBRE DE LA PRACTICA

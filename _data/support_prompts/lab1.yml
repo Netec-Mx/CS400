@@ -1,0 +1,156 @@
+# Prompts de apoyo para la Práctica 1
+# El slug del laboratorio debe ser: lab1
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 1 de Couchbase Server.
+
+    Validé AWS CLI, eksctl, kubectl, Helm y jq; comprobé la identidad
+    activa en AWS y definí las variables reutilizables del laboratorio
+    para EKS y Couchbase.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 1 de Couchbase Server.
+
+    Preparé y validé el script eks-cluster.sh utilizado para crear y
+    eliminar Amazon EKS, y analicé los componentes de infraestructura
+    que eksctl aprovisionará mediante AWS.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 1 de Couchbase Server.
+
+    Creé el clúster Amazon EKS, comprobé sus tres nodos administrados
+    y validé que el Amazon EBS CSI Driver estuviera activo y disponible
+    para atender solicitudes de almacenamiento persistente.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 1 de Couchbase Server.
+
+    Creé una StorageClass basada en Amazon EBS gp3 con
+    WaitForFirstConsumer e instalé Couchbase Kubernetes Operator y
+    Admission Controller mediante Helm sin crear el clúster predeterminado.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 1 de Couchbase Server.
+
+    Creé el secreto administrativo y desplegué Couchbase Server
+    Enterprise 7.6.2 con cuatro Pods organizados en una topología MDS,
+    utilizando PersistentVolumes respaldados por Amazon EBS gp3.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 1 de Couchbase Server.
+
+    Accedí administrativamente a Couchbase mediante kubectl port-forward
+    y REST API, validando la salud del clúster y correlacionando los Pods
+    Kubernetes con los servicios asignados a cada miembro Couchbase.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 1 de Couchbase Server.
+
+    Instalé el bucket travel-sample mediante REST API, esperé a que
+    finalizara su carga y registré su cantidad de documentos, tipo,
+    cuota de memoria y número de réplicas.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 1 de Couchbase Server.
+
+    Analicé el vBucketServerMap de travel-sample para identificar los
+    servidores Data participantes y comprobar la distribución de los
+    1024 vBuckets activos y sus 1024 asignaciones de réplica.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 1 de Couchbase Server.
+
+    Validé la arquitectura mediante Kubernetes, REST API y SQL++,
+    comprobando salud, servicios MDS, travel-sample, vBuckets, scopes,
+    collections y consultas sobre la collection inventory.airline.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 1 de Couchbase Server.
+
+    Creé y ejecuté topology-report.sh para consolidar automáticamente
+    información de Amazon EKS, Pods, servicios MDS, travel-sample,
+    Cluster Map y distribución de vBuckets en una evidencia reutilizable.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea11:
+  title: "Explicar la Tarea 11 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 11 de la
+    Práctica 1 de Couchbase Server.
+
+    Ejecuté una validación automatizada del laboratorio mediante
+    validate.sh para comprobar nodos Kubernetes, Pods Couchbase,
+    servicios MDS, travel-sample, vBuckets y réplicas antes del cierre.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 6
+# El slug del laboratorio debe ser: lab6
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 6 de Couchbase Server.
+
+    Capturé una línea base de seguridad revisando Services Kubernetes,
+    exposición externa, configuración inicial de transporte, usuarios
+    RBAC existentes y una matriz de postura previa al hardening.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 6 de Couchbase Server.
+
+    Creé una collection aislada, grupos y usuarios RBAC granulares y
+    validé mediante SDK y SQL++ permisos de lectura KV, SELECT,
+    escritura y administración de índices bajo menor privilegio.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 6 de Couchbase Server.
+
+    Creé una CA privada y certificados X.509 para Couchbase Server y
+    Couchbase Operator, validé SAN, usos, cadena y fingerprints y los
+    almacené como Kubernetes Secrets de tipo TLS.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 6 de Couchbase Server.
+
+    Habilité Managed TLS mediante Couchbase Kubernetes Operator,
+    configuré TLS 1.2, client certificate authentication y
+    nodeToNodeEncryption=All y validé Management y Query mediante HTTPS.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 6 de Couchbase Server.
+
+    Generé un certificado cliente para svc-mtls-client, asocié su CN
+    con una identidad RBAC y comprobé autenticación X.509 sin usuario
+    ni contraseña mediante la política declarada por el Operator.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 6 de Couchbase Server.
+
+    Descubrí dinámicamente los eventos auditables disponibles, habilité
+    auditoría con rotación y retención y generé autenticaciones, consultas
+    autorizadas y denegaciones RBAC para producir evidencia auditable.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 6 de Couchbase Server.
+
+    Recolecté audit.log desde todos los Pods Couchbase, consolidé los
+    eventos en un archivo JSONL añadiendo el Pod de origen y analicé
+    eventos, identidades y cuentas de servicio utilizadas en las pruebas.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 6 de Couchbase Server.
+
+    Verifiqué la superficie Kubernetes final, la configuración declarativa
+    de Managed TLS y los settings efectivos de seguridad, y documenté
+    controles productivos adicionales que quedaron fuera del laboratorio.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 6 de Couchbase Server.
+
+    Construí una matriz final de postura de seguridad relacionando cada
+    control implementado con su evidencia correspondiente para TLS,
+    RBAC, mTLS, auditoría, cifrado interno y exposición de servicios.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 6 de Couchbase Server.
+
+    Ejecuté una suite integral de validación de TLS, RBAC, mTLS,
+    auditoría y configuración declarativa y generé un reporte consolidado
+    con las principales evidencias antes de limpiar el entorno.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

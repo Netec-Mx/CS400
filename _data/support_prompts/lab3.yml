@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 3
+# El slug del laboratorio debe ser: lab3
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 3 de Couchbase Server.
+
+    Validé la topología y disponibilidad de Query, Index y Data Service,
+    comprobé el funcionamiento de Query Service mediante SQL++ y confirmé
+    que inventory.airline contenía los datos base requeridos.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 3 de Couchbase Server.
+
+    Creé la collection experimental route_lab3, desplegué un cliente
+    Python dentro de EKS y generé al menos 500 000 documentos con
+    airlineid relacionados correctamente con aerolíneas reales.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 3 de Couchbase Server.
+
+    Creé un índice primario temporal y utilicé EXPLAIN sobre Q1 para
+    obtener un plan baseline, identificar operadores y revisar las
+    estimaciones de costo y cardinalidad generadas por el optimizador.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 3 de Couchbase Server.
+
+    Ejecuté ADVISE sobre Q1, creé un covering index, esperé su estado
+    online, actualicé estadísticas para el CBO y comparé mediante EXPLAIN
+    el plan anterior y posterior a la optimización.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 3 de Couchbase Server.
+
+    Analicé consultas SQL++ con JOIN, GROUP BY, HAVING, agregaciones,
+    UNNEST y una subconsulta correlacionada, utilizando EXPLAIN, ADVISE,
+    índices secundarios y estadísticas del optimizador.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 3 de Couchbase Server.
+
+    Ejecuté Q1 y Q2 con PROFILE timings para medir el comportamiento real
+    de cada consulta, analizar tiempos y elementos procesados por operador
+    y comparar elapsedTime con executionTime.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 3 de Couchbase Server.
+
+    Creé un prepared statement con parámetros nombrados y query context,
+    lo ejecuté con diferentes valores, revisé system:prepareds y comparé
+    cinco ejecuciones ad hoc contra cinco prepared.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 3 de Couchbase Server.
+
+    Revisé la configuración administrativa de Query Service y probé
+    timeout y max_parallelism para limitar duración y paralelismo de las
+    consultas sin modificar directamente las sentencias SQL++.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 3 de Couchbase Server.
+
+    Generé 300 consultas concurrentes con 10 workers mediante Couchbase
+    Python SDK y correlacioné throughput y percentiles P50, P95 y P99
+    con Active Requests, Completed Requests y Query Monitor.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 3 de Couchbase Server.
+
+    Ejecuté la validación final del laboratorio, eliminé la collection
+    route_lab3 y el Pod cliente temporal, y confirmé que planes, perfiles,
+    benchmarks y demás evidencias permanecieran almacenados localmente.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

@@ -65,7 +65,7 @@ tarea${task_number}:
     Explícame expertamente qué hice en la Tarea ${task_number} de la
     Práctica ${lab_number} de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_${task_number}_AQUI.
+    CONTEXTO_DE_LA_TAREA_${task_number}_AQUI. BREVE Y PUNTUAL
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se

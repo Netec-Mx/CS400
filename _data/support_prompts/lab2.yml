@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 2
+# El slug del laboratorio debe ser: lab2
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 2 de Couchbase Server.
+
+    Validé la topología MDS, identifiqué los dos nodos con Data Service,
+    confirmé los PersistentVolumes y comprobé que los Pods no presentaran
+    reinicios, OOMKilled ni condiciones de presión de memoria.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 2 de Couchbase Server.
+
+    Creé los buckets lab-couchstore y lab-magma mediante REST API,
+    configurando Couchstore con valueOnly y Magma con fullEviction,
+    cuotas distintas y replicaNumber igual a 1.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 2 de Couchbase Server.
+
+    Creé capture-metrics.sh para capturar snapshots JSON de métricas
+    del Data Service y registré una línea base de Couchstore y Magma
+    antes de iniciar las fases de presión de memoria.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 2 de Couchbase Server.
+
+    Generé carga progresiva sobre lab-couchstore mediante cbworkloadgen
+    para provocar presión sobre su cuota de memoria y observar ejection,
+    resident ratio, elementos no residentes y posibles errores de memoria.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 2 de Couchbase Server.
+
+    Generé carga progresiva sobre lab-magma y comparé sus métricas con
+    Couchstore para analizar diferencias operativas entre fullEviction
+    y valueOnly sin tratar el ejercicio como un benchmark de rendimiento.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 2 de Couchbase Server.
+
+    Creé un Pod cliente con Couchbase Python SDK y ejecuté una carga
+    aproximada de 70% GET y 30% UPSERT para analizar cache misses,
+    background fetch y recuperación de valores no residentes.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 2 de Couchbase Server.
+
+    Calculé los watermarks efectivos del Data Service y generé una
+    ráfaga adicional de escritura para observar Disk Write Queue,
+    velocidad de drenado, uso de memoria y resident ratio.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 2 de Couchbase Server.
+
+    Ejecuté un benchmark con Couchbase Python SDK para comparar la
+    latencia de escrituras con none, majority, majorityAndPersistActive
+    y persistToMajority usando múltiples muestras por nivel.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 2 de Couchbase Server.
+
+    Correlacioné las métricas obtenidas mediante REST API con las
+    estadísticas visibles en Couchbase Web Console para lab-couchstore
+    y lab-magma, incluyendo memoria, residencia y persistencia.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 2 de Couchbase Server.
+
+    Analicé cronológicamente los snapshots, generé un reporte final,
+    ejecuté la validación de objetivos, respondí preguntas de análisis
+    y eliminé el Pod cliente y los buckets experimentales del laboratorio.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

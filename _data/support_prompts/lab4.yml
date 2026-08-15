@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 4
+# El slug del laboratorio debe ser: lab4
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 4 de Couchbase Server.
+
+    Validé una topología con dos nodos Index y analicé un workload
+    objetivo de 1 000 QPS distribuido entre cinco patrones de acceso
+    para definir prioridades y propuestas iniciales de indexación GSI.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 4 de Couchbase Server.
+
+    Creé la collection booking_lab4, generé 200 000 documentos
+    reproducibles, establecí un índice primario baseline y capturé
+    planes EXPLAIN y métricas iniciales para las consultas Q1 a Q5.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 4 de Couchbase Server.
+
+    Diseñé índices secundarios simples y compuestos para los patrones
+    de Q1, Q2 y Q3, y utilicé EXPLAIN para analizar spans, selección
+    de índices y cambios en la cardinalidad estimada por el optimizador.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 4 de Couchbase Server.
+
+    Creé un índice completo y un partial index con claves equivalentes,
+    comparé su metadata y estadísticas y comprobé mediante EXPLAIN que
+    el predicado status="cancelled" habilitara el índice parcial.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 4 de Couchbase Server.
+
+    Diseñé covering indexes para Q4 y Q2 incorporando campos de filtro,
+    orden y proyección, y validé mediante EXPLAIN la presencia de covers
+    y la reducción o eliminación de operaciones Fetch.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 4 de Couchbase Server.
+
+    Creé dos índices lógicamente equivalentes, uno normal y otro con
+    PARTITION BY HASH, y comparé metadata, placement, planes y métricas
+    para comprender la distribución horizontal del Index Service.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 4 de Couchbase Server.
+
+    Creé un índice GSI con num_replica=1 sobre dos nodos Index,
+    verifiqué original y réplica, eliminé temporalmente un Pod Index
+    y comprobé continuidad de consultas mientras el Operator lo recreaba.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 4 de Couchbase Server.
+
+    Registré tres índices con defer_build=true, confirmé su estado
+    deferred y ejecuté BUILD INDEX para construirlos coordinadamente,
+    observando su transición hasta alcanzar el estado online.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 4 de Couchbase Server.
+
+    Reconstruí operativamente idx_booking_flight mediante DROP INDEX,
+    CREATE INDEX con defer_build y BUILD INDEX, y utilicé EXPLAIN para
+    comprobar que volviera a estar disponible para Query Service.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 4 de Couchbase Server.
+
+    Exporté el inventario final de índices, ejecuté una validación
+    integral de topología, datos, índices y réplica HA, y eliminé
+    booking_lab4 y el Pod cliente conservando las evidencias locales.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

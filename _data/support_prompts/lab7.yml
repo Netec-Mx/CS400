@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 7
+# El slug del laboratorio debe ser: lab7
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 7 de Couchbase Server.
+
+    Caractericé un workload empresarial de 260 millones de documentos
+    y 70,500 ops/s, separé valores documentados de Couchbase de los
+    supuestos del caso y clasifiqué cada bucket por patrón de acceso.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 7 de Couchbase Server.
+
+    Calculé la memoria requerida por Data Service considerando documentos,
+    metadata, tamaño de claves, réplicas, compresión, working set,
+    overhead, high-water mark y headroom del escenario empresarial.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 7 de Couchbase Server.
+
+    Modelé almacenamiento para Couchstore y Magma considerando valores
+    comprimidos, claves, metadata, réplicas, tombstones y factores de
+    reserva del caso para justificar el engine seleccionado por bucket.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 7 de Couchbase Server.
+
+    Dimensioné Query Service mediante concurrencia y CPU, e Index Service
+    mediante número de entries, tamaños de claves, metadata Plasma,
+    almacenamiento secundario y working set de índices.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 7 de Couchbase Server.
+
+    Definí drivers de capacidad para Search, Analytics y Eventing,
+    calculé el temporary disk de Analytics y mantuve Search y Eventing
+    como modelos sujetos a benchmark en lugar de fórmulas universales.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 7 de Couchbase Server.
+
+    Diseñé tres escenarios MDS con distintas capacidades de nodos, CPU,
+    RAM y almacenamiento y validé cuantitativamente que el escenario B
+    soporte la demanda inicial incluso con un Data node menos.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 7 de Couchbase Server.
+
+    Validé tres Availability Zones y tres Server Groups, correlacioné
+    Pods con workers y zonas y documenté la diferencia entre MDS,
+    failure domains, Server Groups y réplicas de vBuckets.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 7 de Couchbase Server.
+
+    Simulé un crecimiento mensual de 8% durante 24 meses y comparé RAM,
+    almacenamiento y capacidad N+1 de los tres escenarios utilizando
+    indicadores LOW, MEDIUM y HIGH exclusivamente con fines pedagógicos.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 7 de Couchbase Server.
+
+    Capturé métricas reales de travel-sample y de Kubernetes para observar
+    background fetch, residencia, colas, memoria, documentos y consumo
+    de Pods sin utilizarlas como validación del modelo empresarial.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 7 de Couchbase Server.
+
+    Ejecuté una validación estructural del modelo y consolidé workload,
+    RAM, disco, servicios, MDS, Server Groups, simulación y métricas
+    reales en un dossier final reproducible.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

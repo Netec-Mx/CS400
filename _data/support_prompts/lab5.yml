@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 5
+# El slug del laboratorio debe ser: lab5
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 5 de Couchbase Server.
+
+    Validé Search, Eventing y Analytics dentro de la topología MDS,
+    comprobé sus listeners especializados y creé una collection bilingüe
+    controlada con documentos y coordenadas conocidas para las pruebas FTS.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 5 de Couchbase Server.
+
+    Creé un índice Full-Text Search scoped con mappings estáticos,
+    analyzers en inglés y español, campos keyword y geopoint, y esperé
+    hasta confirmar que los documentos del corpus fueran indexados.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 5 de Couchbase Server.
+
+    Ejecuté consultas Search de tipo match, fuzzy, boolean y geo para
+    comprobar analyzers lingüísticos, tolerancia ortográfica, filtros
+    exactos y búsquedas por distancia utilizando el mismo índice FTS.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 5 de Couchbase Server.
+
+    Creé el bucket lab5-eventing y las collections bookings,
+    bookings_enriched y eventing_metadata, e inserté cinco reservas
+    históricas antes de desplegar la función Eventing.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 5 de Couchbase Server.
+
+    Creé y desplegué una función Eventing scoped con from_now que valida
+    reservas, calcula duración y costo, clasifica la estancia y mantiene
+    documentos derivados en una collection destino.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 5 de Couchbase Server.
+
+    Comparé los límites DCP From Now y Everything, reprocesé las
+    mutaciones históricas y revisé execution stats, failure stats,
+    application logs y el comportamiento de OnDelete.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 5 de Couchbase Server.
+
+    Habilité Analytics sobre hotel, route y bookings_enriched y comparé
+    sus conteos con Data Service para observar cómo DCP mantiene copias
+    analíticas sincronizadas de forma asíncrona.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 5 de Couchbase Server.
+
+    Ejecuté consultas OLAP en Analytics utilizando RANK, COUNT, SUM y
+    AVG como window functions para analizar hoteles, reservas enriquecidas
+    y conectividad de aerolíneas.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 5 de Couchbase Server.
+
+    Ejecuté una agregación equivalente mediante Query Service y Analytics
+    Service, capturé EXPLAIN y métricas de ambos y comparé sus modelos de
+    ejecución y casos de uso sin asumir cuál debía ser más rápido.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 5 de Couchbase Server.
+
+    Ejecuté la validación final, consolidé evidencias de Search, Eventing
+    y Analytics y eliminé los recursos temporales del laboratorio sin
+    afectar las collections originales de travel-sample.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

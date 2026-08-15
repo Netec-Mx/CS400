@@ -1,0 +1,142 @@
+# Prompts de apoyo para la Práctica 8
+# El slug del laboratorio debe ser: lab8
+
+tarea1:
+  title: "Explicar la Tarea 1 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 1 de la
+    Práctica 8 de Couchbase Server.
+
+    Inicié un workload continuo con mezcla 70% GET y 30% UPSERT,
+    capturé throughput, errores y percentiles de línea base y preparé
+    helpers para descubrir Data Pods y validar estabilidad y rebalance.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea2:
+  title: "Explicar la Tarea 2 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 2 de la
+    Práctica 8 de Couchbase Server.
+
+    Realicé un scale-out declarativo de cuatro a cinco Data nodes
+    modificando CouchbaseCluster.spec y observé el nuevo Pod, membership
+    y rebalance mientras el workload permanecía activo.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea3:
+  title: "Explicar la Tarea 3 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 3 de la
+    Práctica 8 de Couchbase Server.
+
+    Analicé vBucketServerMap después del scale-out para contar active y
+    replica vBuckets por Data node, identifiqué el nuevo Pod y capturé
+    workload, métricas del bucket y consumo de recursos Kubernetes.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea4:
+  title: "Explicar la Tarea 4 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 4 de la
+    Práctica 8 de Couchbase Server.
+
+    Ejecuté un scale-in declarativo de cinco a cuatro Data nodes,
+    permití que Operator seleccionara y retirara el miembro correspondiente
+    y validé membership y redistribución final de vBuckets.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea5:
+  title: "Explicar la Tarea 5 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 5 de la
+    Práctica 8 de Couchbase Server.
+
+    Provocqué un reemplazo administrado mediante la anotación reschedule
+    del Operator y SwapRebalance, comparando nombres y UIDs de Data Pods
+    antes y después mientras la carga permanecía activa.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea6:
+  title: "Explicar la Tarea 6 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 6 de la
+    Práctica 8 de Couchbase Server.
+
+    Inicié un scale-out, esperé un rebalance real, lo detuve mediante
+    stopRebalance y observé cómo Operator volvió a reconciliar el clúster
+    con el tamaño deseado sin ejecutar rebalance ni recovery manual.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea7:
+  title: "Explicar la Tarea 7 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 7 de la
+    Práctica 8 de Couchbase Server.
+
+    Revisé la configuración de Rebalance Retry nativo, confirmé que
+    permanezca deshabilitado en un clúster administrado por Operator
+    y diferencié retry, reconciliación y full o delta recovery.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea8:
+  title: "Explicar la Tarea 8 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 8 de la
+    Práctica 8 de Couchbase Server.
+
+    Automaticé scale-out y scale-in mediante un script que modifica
+    únicamente spec.servers[].size y espera cardinalidad real, salud,
+    membership y ausencia de rebalance antes de finalizar.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea9:
+  title: "Explicar la Tarea 9 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 9 de la
+    Práctica 8 de Couchbase Server.
+
+    Consolidé el log completo del workload y calculé throughput,
+    errores y percentiles globales y por fase para comparar baseline,
+    scale-out, scale-in, swap, reconciliación y automatización.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.
+
+tarea10:
+  title: "Explicar la Tarea 10 con IA"
+  prompt: >-
+    Explícame expertamente qué hice en la Tarea 10 de la
+    Práctica 8 de Couchbase Server.
+
+    Ejecuté una suite final de validación y generé un reporte consolidado
+    con workload, comparación por fases, distribución de vBuckets,
+    configuración de Rebalance Retry y estado final del clúster.
+
+    Explica el propósito de cada comando, configuración o procedimiento,
+    cómo interpretar las salidas esperadas, cómo validar que la tarea se
+    completó correctamente y qué errores comunes podrían presentarse.

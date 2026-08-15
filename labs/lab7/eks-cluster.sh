@@ -77,6 +77,8 @@ delete_cluster() {
   precheck
   if eksctl get cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" >/dev/null 2>&1; then
     eksctl delete cluster --name "$EKS_CLUSTER" --region "$AWS_REGION" --wait
+  else
+    echo "El clúster no existe."
   fi
 }
 
