@@ -7,7 +7,9 @@ tarea1:
     Explícame expertamente qué hice en la Tarea 1 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_1_AQUI. BREVE Y PUNTUAL
+    Validé el endpoint Prometheus nativo de Couchbase, recolecté métricas
+    de todos los Pods, construí un catálogo por servicio y comprobé un
+    contrato mínimo de métricas Query e Index antes de usar PromQL.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -19,7 +21,9 @@ tarea2:
     Explícame expertamente qué hice en la Tarea 2 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_2_AQUI. BREVE Y PUNTUAL
+    Configuré Services y ServiceMonitor para Couchbase Server y Operator,
+    incorporé autenticación Basic Auth para /metrics y validé que
+    Prometheus cargara los jobs y mantuviera sus targets en estado UP.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -31,7 +35,9 @@ tarea3:
     Explícame expertamente qué hice en la Tarea 3 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_3_AQUI. BREVE Y PUNTUAL
+    Creé un cliente Python, inicié un workload continuo de operaciones KV
+    y SQL++, registré métricas periódicas de rendimiento y preparé una
+    captura de baseline de al menos cinco minutos.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -43,7 +49,9 @@ tarea4:
     Explícame expertamente qué hice en la Tarea 4 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_4_AQUI. BREVE Y PUNTUAL
+    Descubrí el datasource Prometheus de Grafana y generé mediante Python
+    un dashboard reproducible con cinco filas para Cluster Overview,
+    Data, Query/Index, servicios avanzados y Kubernetes/Operator.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -55,7 +63,9 @@ tarea5:
     Explícame expertamente qué hice en la Tarea 5 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_5_AQUI. BREVE Y PUNTUAL
+    Analicé Data, Query e Index mediante consultas PromQL para medir
+    request rate, porcentaje de slow queries, memoria utilizada, pending
+    mutations y background fetches sin interpretarlos como cache misses.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -67,7 +77,9 @@ tarea6:
     Explícame expertamente qué hice en la Tarea 6 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_6_AQUI. BREVE Y PUNTUAL
+    Inventarié métricas de Search, Eventing, Analytics y XDCR, revisé
+    métricas reales del Operator y capturé eventos Kubernetes y Couchbase
+    como fuentes separadas de evidencia operativa.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -79,7 +91,9 @@ tarea7:
     Explícame expertamente qué hice en la Tarea 7 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_7_AQUI. BREVE Y PUNTUAL
+    Capturé el baseline después de cinco minutos de workload y construí
+    una política de thresholds que diferencia condiciones lógicas,
+    políticas del caso, condiciones del producto y valores derivados.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -91,7 +105,9 @@ tarea8:
     Explícame expertamente qué hice en la Tarea 8 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_8_AQUI. BREVE Y PUNTUAL
+    Implementé un receiver webhook, configuré Alertmanager y creé ocho
+    reglas Prometheus: siete controles operativos y una regla sintética
+    utilizada exclusivamente para validar el pipeline de notificaciones.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -103,7 +119,9 @@ tarea9:
     Explícame expertamente qué hice en la Tarea 9 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_9_AQUI. BREVE Y PUNTUAL
+    Esperé que la alerta sintética alcanzara firing, comprobé su entrega
+    mediante Alertmanager y el webhook receiver, registré una annotation
+    en Grafana y correlacioné la alerta con eventos Couchbase y Kubernetes.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -115,9 +133,10 @@ tarea10:
     Explícame expertamente qué hice en la Tarea 10 de la
     Práctica 11 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_10_AQUI. BREVE Y PUNTUAL
+    Ejecuté una validación integral del contrato de métricas, targets,
+    dashboard, reglas, baseline, Operator y webhook y consolidé todas
+    las evidencias principales en un dossier final de observabilidad.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
     completó correctamente y qué errores comunes podrían presentarse.
-

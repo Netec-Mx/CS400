@@ -58,29 +58,29 @@ cs400:
       duration: "78 min"
       desc: "Valida failover, Server Groups, XDCR filtrado, conflictos, RPO y RTO mediante una arquitectura primaria y DR."
 
-    - id: lab10 
-      title: "NOMBRE_DE_LA_PRACTICA_10" # NOMBRE DE LA PRACTICA
-      url:  "/lab10/lab10/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab10
+      title: "Despliegue y recuperación de Couchbase en Kubernetes"
+      url: "/lab10/lab10/"
+      duration: "84 min"
+      desc: "Despliega Couchbase en EKS y analiza persistencia, reconciliación, scale-out, recuperación y troubleshooting por capas."
 
-    - id: lab11 
-      title: "NOMBRE_DE_LA_PRACTICA_11" # NOMBRE DE LA PRACTICA
-      url:  "/lab11/lab11/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab11
+      title: "Construcción de un dashboard operativo y alertas"
+      url: "/lab11/lab11/"
+      duration: "72 min"
+      desc: "Implementa observabilidad con Prometheus, Grafana y Alertmanager usando métricas, dashboards, baseline y alertas de Couchbase."
 
-    - id: lab12 
-      title: "NOMBRE_DE_LA_PRACTICA_12" # NOMBRE DE LA PRACTICA
-      url:  "/lab12/lab12/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab12
+      title: "Ejecución de carga, análisis y optimización"
+      url: "/lab12/lab12/"
+      duration: "48 min"
+      desc: "Ejecuta cargas progresivas y optimiza Couchbase con SQL++, índices, memoryQuota y análisis automático de saturación."
 
-    - id: lab13 
-      title: "NOMBRE_DE_LA_PRACTICA_13" # NOMBRE DE LA PRACTICA
-      url:  "/lab13/lab13/"
-      duration: "## min" # AJUSTAR TIEMPO DE LA PRACTICA
-      desc: "DESCRIPCION_CORTA_DE_LA_PRACTICA" # DESCRIPCION BREVE DE LA PRACTICA 100-120 CARACTERES
+    - id: lab13
+      title: "Diagnóstico, recuperación y mantenimiento del clúster"
+      url: "/lab13/lab13/"
+      duration: "48 min"
+      desc: "Diagnostica incidentes, ejecuta backup y restore, mide RPO/RTO y realiza rolling upgrade con rollback declarativo."
 
     # ESTRUCTURA DE SUB-PRACTICA OCUPAR SI ES NECESARIO SINO BORRAR
     # - id: lab61

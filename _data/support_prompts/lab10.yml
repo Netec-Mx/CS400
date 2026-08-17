@@ -7,7 +7,9 @@ tarea1:
     Explícame expertamente qué hice en la Tarea 1 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_1_AQUI. BREVE Y PUNTUAL
+    Inspeccioné Couchbase Kubernetes Operator, Admission Controller,
+    CRDs y webhooks, utilicé kubectl explain para revisar el schema
+    declarativo y capturé logs iniciales como baseline administrativo.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -19,7 +21,9 @@ tarea2:
     Explícame expertamente qué hice en la Tarea 2 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_2_AQUI. BREVE Y PUNTUAL
+    Validé la StorageClass gp3, el EBS CSI Driver y las Availability
+    Zones del clúster, relacionando WaitForFirstConsumer con el
+    aprovisionamiento y afinidad zonal de volúmenes persistentes.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -31,7 +35,9 @@ tarea3:
     Explícame expertamente qué hice en la Tarea 3 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_3_AQUI. BREVE Y PUNTUAL
+    Desplegué un CouchbaseCluster Enterprise 7.6.2 con dos Data Pods,
+    un Query + Index, almacenamiento gp3 y un CouchbaseBucket declarativo,
+    validando cuotas, Pods, PVC, PV y helpers de descubrimiento.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -43,7 +49,9 @@ tarea4:
     Explícame expertamente qué hice en la Tarea 4 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_4_AQUI. BREVE Y PUNTUAL
+    Comparé el desired state definido en el Custom Resource con el estado
+    real de Kubernetes y Couchbase, utilizando Pods, UID, nodos,
+    status.conditions, membership, servicios y rebalanceStatus.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -55,7 +63,9 @@ tarea5:
     Explícame expertamente qué hice en la Tarea 5 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_5_AQUI. BREVE Y PUNTUAL
+    Modifiqué únicamente el desired state de la server class Data de
+    dos a tres miembros, observé la divergencia temporal y validé cómo
+    Operator creó el nuevo Pod, PVC y completó el rebalance.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -67,7 +77,9 @@ tarea6:
     Explícame expertamente qué hice en la Tarea 6 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_6_AQUI. BREVE Y PUNTUAL
+    Inserté un documento con durabilidad, eliminé un Data Pod sin cambiar
+    la cardinalidad declarada y comprobé que Operator recuperó la instancia,
+    reutilizó el PVC y mantuvo disponible el documento de prueba.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -79,7 +91,9 @@ tarea7:
     Explícame expertamente qué hice en la Tarea 7 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_7_AQUI. BREVE Y PUNTUAL
+    Actualicé declarativamente memoryQuota de lab-bucket de 512Mi a
+    768Mi y comparé el valor almacenado en CouchbaseBucket.spec con
+    la cuota efectiva reportada por la REST API de Couchbase.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -91,7 +105,9 @@ tarea8:
     Explícame expertamente qué hice en la Tarea 8 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_8_AQUI. BREVE Y PUNTUAL
+    Generé fallos independientes en validación, scheduling y container
+    runtime y analicé status.conditions y logs del Operator para construir
+    un diagnóstico por capas sin mezclar síntomas de distintos problemas.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -103,7 +119,9 @@ tarea9:
     Explícame expertamente qué hice en la Tarea 9 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_9_AQUI. BREVE Y PUNTUAL
+    Construí una matriz de reconciliación relacionando desired state,
+    Kubernetes state y Couchbase state para baseline, scale-out,
+    pérdida de Pod, recovery y actualización declarativa del bucket.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -115,9 +133,10 @@ tarea10:
     Explícame expertamente qué hice en la Tarea 10 de la
     Práctica 10 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_10_AQUI. BREVE Y PUNTUAL
+    Ejecuté una validación integral de disponibilidad, cardinalidad,
+    health, rebalance, cuota y persistencia y consolidé desired state,
+    Kubernetes state, Couchbase state y recovery en un dossier final.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
     completó correctamente y qué errores comunes podrían presentarse.
-

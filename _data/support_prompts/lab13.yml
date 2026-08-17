@@ -7,7 +7,9 @@ tarea1:
     Explícame expertamente qué hice en la Tarea 1 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_1_AQUI. BREVE Y PUNTUAL
+    Establecí una línea base del clúster y del dataset, registré salud,
+    membresía, servicios, versión y fingerprint de 100,000 documentos,
+    y documenté una metodología de troubleshooting en seis etapas.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -19,7 +21,9 @@ tarea2:
     Explícame expertamente qué hice en la Tarea 2 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_2_AQUI. BREVE Y PUNTUAL
+    Simulé presión de memoria reduciendo memoryQuota del bucket,
+    correlacioné resident ratio, background fetches, memoria y colas
+    con una sonda de lecturas y restauré posteriormente la cuota original.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -31,7 +35,9 @@ tarea3:
     Explícame expertamente qué hice en la Tarea 3 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_3_AQUI. BREVE Y PUNTUAL
+    Creé un índice GSI con defer_build, confirmé su estado deferred,
+    capturé el EXPLAIN previo, ejecuté BUILD INDEX y verifiqué que
+    alcanzara online y fuera utilizado por el nuevo plan SQL++.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -43,7 +49,9 @@ tarea4:
     Explícame expertamente qué hice en la Tarea 4 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_4_AQUI. BREVE Y PUNTUAL
+    Recolecté evidencia de Kubernetes, Couchbase y Operator mediante
+    CouchbaseCluster YAML, Pods, PVC, eventos, logs y cbcollect_info,
+    y empaqueté los principales archivos para diagnóstico y escalamiento.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -55,7 +63,9 @@ tarea5:
     Explícame expertamente qué hice en la Tarea 5 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_5_AQUI. BREVE Y PUNTUAL
+    Capturé el fingerprint del restore point y creé un CouchbaseBackup
+    immediate_full administrado por Operator sobre un PVC gp3,
+    validando status, lastSuccess, repositorio, Job y almacenamiento.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -67,7 +77,9 @@ tarea6:
     Explícame expertamente qué hice en la Tarea 6 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_6_AQUI. BREVE Y PUNTUAL
+    Generé 1,000 escrituras posteriores al backup, eliminé los datos
+    de la collection y ejecuté un CouchbaseBackupRestore selectivo
+    para recuperar únicamente el dataset protegido desde su restore point.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -79,7 +91,9 @@ tarea7:
     Explícame expertamente qué hice en la Tarea 7 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_7_AQUI. BREVE Y PUNTUAL
+    Comparé fingerprints antes y después del restore, calculé writes
+    confirmados perdidos, RPO temporal y RTO mediante timestamps reales
+    y validé count y checksum exactos del punto restaurado.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -91,7 +105,9 @@ tarea8:
     Explícame expertamente qué hice en la Tarea 8 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_8_AQUI. BREVE Y PUNTUAL
+    Ejecuté un RollingUpgrade declarativo desde Enterprise 7.6.2 hacia
+    7.6.8 mediante SwapRebalance, observé Mixed Mode controlado y
+    confirmé que todos los nodos finalizaran healthy, active y actualizados.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -103,7 +119,9 @@ tarea9:
     Explícame expertamente qué hice en la Tarea 9 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_9_AQUI. BREVE Y PUNTUAL
+    Preparé un patch declarativo para regresar spec.image a 7.6.2,
+    validé su estructura mediante server-side dry-run y documenté las
+    condiciones y restricciones que deben cumplirse antes de un rollback.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -115,9 +133,10 @@ tarea10:
     Explícame expertamente qué hice en la Tarea 10 de la
     Práctica 13 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_10_AQUI. BREVE Y PUNTUAL
+    Consolidé incidentes, diagnóstico, backup, restore, RPO, RTO,
+    rolling upgrade y rollback en un runbook operativo y ejecuté
+    una validación integral para cerrar el laboratorio con evidencias.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
     completó correctamente y qué errores comunes podrían presentarse.
-

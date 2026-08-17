@@ -119,28 +119,52 @@ lab9:
 
 lab10:
   results:
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
+    - "**Resultado esperado:** Couchbase Kubernetes Operator, Admission Controller, CRDs y webhooks inspeccionados correctamente, validando schema, deployments y baseline administrativo."
+    - "**Resultado esperado:** StorageClass gp3, EBS CSI y topología zonal validados, relacionando WaitForFirstConsumer con aprovisionamiento dinámico y afinidad de PersistentVolumes."
+    - "**Resultado esperado:** CouchbaseCluster Enterprise 7.6.2 desplegado con topología MDS, bucket declarativo y PVC gp3, confirmando cuotas, Pods, volúmenes y helpers de estabilización."
+    - "**Resultado esperado:** Desired state, Kubernetes state y Couchbase state correlacionados mediante Custom Resource, Pods, status.conditions y REST API hasta confirmar convergencia inicial."
+    - "**Resultado esperado:** Scale-out declarativo de Data 2→3 completado mediante reconciliación del Operator, incorporando un nuevo Pod, PVC persistente y rebalance hasta alcanzar estabilidad."
+    - "**Resultado esperado:** Pérdida de un Data Pod simulada y recuperación persistente validada, conservando el desired state, reutilizando el PVC y comprobando la supervivencia del documento de prueba."
+    - "**Resultado esperado:** Cuota del bucket actualizada declarativamente de 512Mi a 768Mi y reconciliada por Operator hasta coincidir con la configuración efectiva reportada por Couchbase."
+    - "**Resultado esperado:** Troubleshooting ejecutado por capas sobre Admission Controller, scheduler, container runtime y Operator, relacionando cada fallo con síntomas y herramientas de diagnóstico apropiadas."
+    - "**Resultado esperado:** Matriz de reconciliación construida para relacionar baseline, scale-out, pérdida de Pod, recovery y actualización de bucket con desired, Kubernetes y Couchbase state."
+    - "**Resultado esperado:** Validación integral y dossier final generados con estado declarativo, estado Kubernetes, estado Couchbase, recuperación persistente, troubleshooting y evidencias de convergencia."
 
 lab11:
   results:
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
+    - "**Resultado esperado:** Endpoint Prometheus nativo de Couchbase validado y catálogo real de métricas construido por servicio, confirmando el contrato mínimo de Query e Index antes de usar PromQL."
+    - "**Resultado esperado:** Services y ServiceMonitor configurados para Couchbase Server y Operator, validando autenticación, descubrimiento dinámico, scrape pools y targets activos en Prometheus."
+    - "**Resultado esperado:** Workload reproducible iniciado sobre Data y Query Service y baseline preparado con métricas de Query, Index, background fetch y muestras de latencia del cliente."
+    - "**Resultado esperado:** Dashboard Grafana generado e importado de forma reproducible con cinco filas para cluster, Data, Query/Index, servicios avanzados y Kubernetes/Operator."
+    - "**Resultado esperado:** Métricas de Data, Query e Index analizadas mediante PromQL validado, incluyendo request rate, slow-query ratio, memoria Index, pending mutations y background fetches."
+    - "**Resultado esperado:** Servicios avanzados, métricas del Operator y eventos Kubernetes y Couchbase inventariados, diferenciando métricas ausentes, backlog XDCR y fuentes de eventos."
+    - "**Resultado esperado:** Thresholds de alerting derivados del baseline y de políticas explícitas, diferenciando condiciones lógicas, políticas del caso, condiciones del producto y valores calculados."
+    - "**Resultado esperado:** Ocho reglas Prometheus creadas junto con routing de Alertmanager y receiver webhook, separando siete reglas operativas de una alerta sintética de validación."
+    - "**Resultado esperado:** Pipeline de alerting end-to-end validado desde Prometheus hasta Alertmanager y webhook receiver, correlacionando la alerta sintética con annotations y eventos del sistema."
+    - "**Resultado esperado:** Validación integral completada y dossier final generado con versiones, contrato de métricas, baseline, servicios avanzados, alerting y evidencias de observabilidad."
 
 lab12:
   results:
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
+    - "**Resultado esperado:** Dataset de 200 000 documentos validado y cuatro escenarios reproducibles documentados para escritura intensiva, carga progresiva, consultas selectivas y agregaciones SQL++."
+    - "**Resultado esperado:** Workload KV write-heavy ejecutado con 16 workers y mezcla 20/80, registrando throughput, errores y percentiles p50, p95 y p99 como línea de rendimiento."
+    - "**Resultado esperado:** Curva de concurrencia 4→8→16→32 ejecutada con mezcla 70/30, generando resultados comparables de throughput, latencia y tasa de error para cada nivel."
+    - "**Resultado esperado:** Candidato de saturación identificado mediante comparación de ganancia de throughput y crecimiento de p95, sin forzar una conclusión cuando ningún nivel cumple la regla definida."
+    - "**Resultado esperado:** Baseline SQL++ capturado mediante PrimaryScan, EXPLAIN, PROFILE y 20 ejecuciones repetidas, conservando operadores, métricas y percentiles previos a la optimización."
+    - "**Resultado esperado:** Secondary index creado y utilizado por el optimizador, eliminando PrimaryScan del plan y permitiendo comparar las latencias SQL++ antes y después mediante el mismo benchmark."
+    - "**Resultado esperado:** Índice no cubierto y covering index comparados mediante EXPLAIN, demostrando presencia de Fetch en el primer caso y ausencia de Fetch con covers en el segundo."
+    - "**Resultado esperado:** memoryQuota del bucket incrementada declarativamente de 512Mi a 768Mi por Data Pod y carga crítica de 32 workers repetida para medir su impacto sin asumir una mejora."
+    - "**Resultado esperado:** KPIs SQL++ y KV comparados automáticamente mediante resultados medidos, calculando cambios porcentuales de latencia, throughput y errores sin hardcodear conclusiones."
+    - "**Resultado esperado:** Validación integral completada y dossier final generado con análisis de saturación, comparación de optimizaciones, planes, cuota de memoria y evidencias reproducibles."
 
 lab13:
   results:
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
-    - "**Resultado esperado:** MODIFICAR AQUI EL TEXTO DE LA DESCRIPCION DEL RESULTADO ESPERADO"
+    - "**Resultado esperado:** Línea base del clúster y fingerprint del dataset establecidos, documentando salud, membresía, versión, integridad inicial y metodología estructurada de troubleshooting."
+    - "**Resultado esperado:** Incidente controlado de presión de memoria diagnosticado mediante cuota, resident ratio, background fetches, carga cliente y métricas antes, durante y después de la corrección."
+    - "**Resultado esperado:** Incidente de índice GSI deferred identificado mediante system:indexes y EXPLAIN, corrigiéndolo con BUILD INDEX y verificando posteriormente su estado online y uso en el plan."
+    - "**Resultado esperado:** Paquete de diagnóstico generado con CouchbaseCluster, Pods, PVC, eventos, logs del Operator, cbcollect_info y archivos comprimidos para análisis y escalamiento."
+    - "**Resultado esperado:** Backup inmediato administrado por Operator completado sobre la collection protegida, conservando fingerprint del restore point, status, repositorio, Job y PVC de respaldo."
+    - "**Resultado esperado:** Pérdida controlada de datos simulada y restore selectivo ejecutado mediante CouchbaseBackupRestore, recuperando exclusivamente lab13-recovery.production.transactions desde el backup."
+    - "**Resultado esperado:** RPO lógico, RPO temporal, RTO e integridad del restore calculados con write IDs y timestamps reales, confirmando la recuperación exacta del punto de respaldo."
+    - "**Resultado esperado:** Rolling upgrade declarativo de Couchbase Enterprise 7.6.2 a 7.6.8 completado mediante SwapRebalance, observando Mixed Mode y validando salud y versión final de todos los nodos."
+    - "**Resultado esperado:** Procedimiento de rollback declarativo preparado y validado mediante server-side dry-run, documentando condiciones de activación, evidencias requeridas y restricciones de downgrade."
+    - "**Resultado esperado:** Runbook operativo y validación final generados con incidentes, diagnóstico, backup/restore, métricas RPO/RTO, upgrade, rollback y evidencias reproducibles del laboratorio."

@@ -7,7 +7,9 @@ tarea1:
     Explícame expertamente qué hice en la Tarea 1 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_1_AQUI. BREVE Y PUNTUAL
+    Validé que la colección contuviera 200 000 documentos y documenté
+    cuatro escenarios reproducibles para escritura intensiva, carga
+    progresiva, consulta selectiva y agregación temporal mediante SQL++.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -19,7 +21,9 @@ tarea2:
     Explícame expertamente qué hice en la Tarea 2 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_2_AQUI. BREVE Y PUNTUAL
+    Creé un motor KV multihilo y ejecuté el escenario write-heavy con
+    16 workers, 20% GET y 80% UPSERT, midiendo operaciones por segundo,
+    errores y percentiles p50, p95 y p99.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -31,7 +35,9 @@ tarea3:
     Explícame expertamente qué hice en la Tarea 3 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_3_AQUI. BREVE Y PUNTUAL
+    Ejecuté la misma carga mixta 70% GET y 30% UPSERT con 4, 8, 16
+    y 32 workers, conservando throughput, p95, p99 y tasa de errores
+    para construir una curva comparable de concurrencia.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -43,7 +49,9 @@ tarea4:
     Explícame expertamente qué hice en la Tarea 4 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_4_AQUI. BREVE Y PUNTUAL
+    Analicé los niveles consecutivos de carga comparando ganancia de
+    throughput y crecimiento de p95 para identificar un candidato de
+    saturación mediante la regla pedagógica definida en el laboratorio.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -55,7 +63,9 @@ tarea5:
     Explícame expertamente qué hice en la Tarea 5 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_5_AQUI. BREVE Y PUNTUAL
+    Creé un primary index temporal y capturé un baseline SQL++ mediante
+    EXPLAIN, PROFILE y un benchmark de 20 ejecuciones, verificando que
+    el plan utilizara PrimaryScan antes de aplicar optimizaciones.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -67,7 +77,9 @@ tarea6:
     Explícame expertamente qué hice en la Tarea 6 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_6_AQUI. BREVE Y PUNTUAL
+    Creé el secondary index idx_created_type_value con réplica, esperé
+    su estado online y comprobé mediante EXPLAIN que sustituyera el
+    PrimaryScan antes de repetir exactamente el benchmark SQL++.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -79,7 +91,9 @@ tarea7:
     Explícame expertamente qué hice en la Tarea 7 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_7_AQUI. BREVE Y PUNTUAL
+    Comparé un índice no cubierto con un covering index sobre el mismo
+    patrón de consulta, validando mediante EXPLAIN que el primero
+    requiriera Fetch y que el segundo mostrara covers sin Fetch.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -91,7 +105,9 @@ tarea8:
     Explícame expertamente qué hice en la Tarea 8 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_8_AQUI. BREVE Y PUNTUAL
+    Incrementé declarativamente memoryQuota de 512Mi a 768Mi por
+    Data Pod, esperé la convergencia de la cuota agregada vía REST y
+    repetí la carga mixta de 32 workers para comparar su efecto real.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -103,7 +119,9 @@ tarea9:
     Explícame expertamente qué hice en la Tarea 9 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_9_AQUI. BREVE Y PUNTUAL
+    Construí un reporte automático que compara los resultados SQL++
+    antes y después del secondary index y la carga de 32 workers con
+    512Mi y 768Mi, calculando cambios porcentuales desde datos reales.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
@@ -115,9 +133,10 @@ tarea10:
     Explícame expertamente qué hice en la Tarea 10 de la
     Práctica 12 de Couchbase Server.
 
-    CONTEXTO_DE_LA_TAREA_10_AQUI. BREVE Y PUNTUAL
+    Ejecuté la validación final de escenarios, cargas, índices, planes,
+    cuota agregada y reportes y consolidé el análisis de saturación y
+    las comparaciones de optimización en un dossier final reproducible.
 
     Explica el propósito de cada comando, configuración o procedimiento,
     cómo interpretar las salidas esperadas, cómo validar que la tarea se
     completó correctamente y qué errores comunes podrían presentarse.
-
