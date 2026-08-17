@@ -3011,7 +3011,7 @@ Lab11SyntheticPipeline
 - {% include step_label.html %} Crea `validate.sh` para comprobar catálogo de métricas, ambos targets, dashboard, reglas, baseline, métricas Operator y evidencia del webhook.
 
   ```bash
-  curl -L -o scripts/validate.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab1/validate.sh
+  curl -L -o scripts/validate.sh https://raw.githubusercontent.com/Netec-Mx/CS400/refs/heads/main/labs/lab11/validate.sh
   ```
 
 **Salida esperada:** `validate.sh` debe contener 11 verificaciones: contrato Query/Index, ServiceMonitor, targets Server/Operator, dashboard, cinco filas, PrometheusRule, webhook, baseline, métricas Operator y correlación de eventos.
