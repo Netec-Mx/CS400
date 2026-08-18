@@ -29,7 +29,14 @@
   main, article, section { width:auto !important; max-width:none !important; }
 
   /* 2) Oculta lo que no debe salir */
-  nav, header, footer, .no-print, .lab-actions { display:none !important; }
+  nav,
+  header,
+  footer,
+  .no-print,
+  .lab-actions,
+  .lab-progress {
+    display: none !important;
+  }
 
   /* 3) Quita gradientes y sombras (fuente del recorte) */
   .lab * {
@@ -57,6 +64,31 @@
 
   /* 6) Márgenes y tamaño de página */
   body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  /* 7) Eliminar estados visuales interactivos del progreso */
+  .step-label {
+    cursor: default !important;
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+  }
+
+  .step-label.step-label-completed {
+    background: transparent !important;
+    color: inherit !important;
+  }
+
+  .step-label.step-label-completed::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .lab-instructions li.step-completed::before {
+    display: none !important;
+    content: none !important;
+  }
 }
 
 /* Define A4 y márgenes (coherente con el navegador) */
@@ -66,3 +98,4 @@
 .pb-before  { break-before: page !important; page-break-before: always !important; }
 .pb-after   { break-after:  page !important; page-break-after:  always !important; }
 .pb-avoid   { break-inside: avoid !important; page-break-inside: avoid !important; }
+

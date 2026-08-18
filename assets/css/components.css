@@ -335,6 +335,7 @@ pre.nocopy + .copy-btn{display:none}
 .lab-note.important{ border-left-color:#e11d48; background:#fff5f5; }
 .lab-note.warning{ border-left-color:#f59e0b; background:#fffbeb; }
 .lab-note.success{ border-left-color:#22c55e; background:#f0fdf4; }
+.lab-note.output{ border-left-color:#7c3aed; background:#f5f3ff; }
 
 /* Compacta (menos margen/padding) */
 .lab-note.compact{ padding:.55rem .8rem; margin:.8rem 0; }
@@ -566,4 +567,778 @@ code table td {
   background: #eef4ff;
   border-color: #2563eb;
   text-decoration: none;
+}
+
+/* =========================================================
+   Progreso interactivo por pasos
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Marcador "Paso N."
+   --------------------------------------------------------- */
+
+.step-label {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+
+  cursor: pointer;
+  user-select: none;
+
+  border-radius: 6px;
+  padding: .08rem .22rem;
+
+  transition:
+    color .18s ease,
+    background-color .18s ease,
+    box-shadow .18s ease;
+}
+
+.step-label:hover {
+  background: #eef4ff;
+}
+
+.step-label:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, .22);
+  outline-offset: 2px;
+}
+
+
+/* ---------------------------------------------------------
+   Check visual del paso completado
+   --------------------------------------------------------- */
+
+.step-label.step-label-completed {
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.step-label.step-label-completed::before {
+  content: "✓";
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 1.05rem;
+  height: 1.05rem;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+  color: #ffffff;
+
+  font-size: .72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+
+/* ---------------------------------------------------------
+   Paso completo
+   Se aplica al <li> que contiene .step-label
+   --------------------------------------------------------- */
+
+.lab-instructions li.step-completed {
+  position: relative;
+}
+
+.lab-instructions li.step-completed::before {
+  content: "";
+
+  position: absolute;
+
+  left: -1.05rem;
+  top: .15rem;
+  bottom: .15rem;
+
+  width: 3px;
+
+  border-radius: 999px;
+
+  background: #86efac;
+}
+
+
+/* ---------------------------------------------------------
+   Panel flotante de progreso
+   --------------------------------------------------------- */
+
+.lab-progress {
+  position: fixed;
+
+  right: 18px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 210px;
+
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  box-sizing: border-box;
+
+  z-index: 900;
+
+  padding: 1rem;
+
+  border: 1px solid #d0d7de;
+  border-left: 4px solid #2563eb;
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, .97);
+
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, .10),
+    0 2px 6px rgba(15, 23, 42, .06);
+
+  backdrop-filter: blur(8px);
+}
+
+
+/* ---------------------------------------------------------
+   Encabezado
+   --------------------------------------------------------- */
+
+.lab-progress-header {
+  margin-bottom: .55rem;
+
+  color: #0f172a;
+
+  font-size: .95rem;
+  line-height: 1.3;
+}
+
+.lab-progress-header strong {
+  font-weight: 800;
+}
+
+
+/* ---------------------------------------------------------
+   Contador
+   --------------------------------------------------------- */
+
+.lab-progress-count {
+  margin-bottom: .65rem;
+
+  color: #475569;
+
+  font-size: .88rem;
+}
+
+
+/* ---------------------------------------------------------
+   Barra
+   --------------------------------------------------------- */
+
+.lab-progress-bar {
+  position: relative;
+
+  width: 100%;
+  height: 8px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #e2e8f0;
+}
+
+.lab-progress-bar-fill {
+  width: 0%;
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: #2563eb;
+
+  transition: width .25s ease;
+}
+
+
+/* ---------------------------------------------------------
+   Porcentaje
+   --------------------------------------------------------- */
+
+.lab-progress-percent {
+  margin-top: .45rem;
+
+  text-align: right;
+
+  color: #334155;
+
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+
+/* ---------------------------------------------------------
+   Acciones
+   --------------------------------------------------------- */
+
+.lab-progress-actions {
+  display: flex;
+  flex-direction: column;
+
+  gap: .5rem;
+
+  margin-top: .8rem;
+}
+
+
+/* Botón Continuar */
+
+.lab-progress-continue {
+  width: 100%;
+
+  padding: .55rem .7rem;
+
+  border: 1px solid #1d4ed8;
+  border-radius: 7px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    transform .12s ease;
+}
+
+.lab-progress-continue:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1e40af;
+}
+
+.lab-progress-continue:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.lab-progress-continue:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, .24);
+  outline-offset: 2px;
+}
+
+
+/* Completado */
+
+.lab-progress-continue:disabled {
+  border-color: #86efac;
+
+  background: #f0fdf4;
+  color: #166534;
+
+  cursor: default;
+}
+
+
+/* Botón Reiniciar */
+
+.lab-progress-reset {
+  width: 100%;
+
+  padding: .45rem .7rem;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #475569;
+
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    color .18s ease;
+}
+
+.lab-progress-reset:hover {
+  border-color: #94a3b8;
+
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.lab-progress-reset:focus-visible {
+  outline: 3px solid rgba(100, 116, 139, .2);
+  outline-offset: 2px;
+}
+
+
+/* ---------------------------------------------------------
+   Estado de práctica terminada
+   --------------------------------------------------------- */
+
+.lab-progress.is-complete {
+  border-left-color: #22c55e;
+}
+
+.lab-progress.is-complete .lab-progress-bar-fill {
+  background: #22c55e;
+}
+
+
+/* =========================================================
+   Progreso responsive minimalista y compacto
+   ========================================================= */
+
+@media (max-width: 1180px) {
+
+  .lab-progress {
+    top: auto;
+    left: auto;
+    right: 12px;
+    bottom: 12px;
+
+    width: 270px;
+    transform: none;
+
+    padding: .42rem .55rem;
+
+    border: 1px solid #d0d7de;
+    border-left: 3px solid #2563eb;
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, .98);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .10);
+    backdrop-filter: blur(6px);
+  }
+
+  .lab-progress.is-complete {
+    border-left-color: #22c55e;
+  }
+
+  .lab-progress-header {
+    display: none;
+  }
+
+  .lab-progress-count {
+    margin: 0 0 .18rem;
+    padding-right: 34px;
+
+    font-size: .7rem;
+    line-height: 1.1;
+    color: #64748b;
+  }
+
+  .lab-progress-percent {
+    position: absolute;
+    top: .38rem;
+    right: .55rem;
+
+    margin: 0;
+
+    font-size: .68rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  .lab-progress-bar {
+    height: 4px;
+    background: #e2e8f0;
+  }
+
+  .lab-progress-bar-fill {
+    background: #2563eb;
+  }
+
+  /* Acciones del panel compacto */
+  .lab-progress-actions {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: .3rem;
+
+    width: 100%;
+    margin-top: .32rem;
+  }
+
+  /* Ambos botones quedan contenidos dentro del panel */
+  .lab-progress-continue,
+  .lab-progress-reset {
+    width: 100%;
+    min-width: 0;
+    min-height: 24px;
+
+    box-sizing: border-box;
+
+    padding: .22rem .4rem;
+
+    border-radius: 6px;
+
+    font-size: .99rem;
+    line-height: 1;
+
+    white-space: nowrap;
+  }
+
+  /* Acción principal */
+  .lab-progress-continue {
+    border: 1px solid #93c5fd;
+
+    background: #eff6ff;
+    color: #1d4ed8;
+
+    font-weight: 700;
+  }
+
+  .lab-progress-continue:hover:not(:disabled) {
+    background: #dbeafe;
+    border-color: #60a5fa;
+    color: #1e40af;
+  }
+
+  /* Acción secundaria */
+  .lab-progress-reset {
+    border: 1px solid #d1d5db;
+
+    background: #ffffff;
+    color: #64748b;
+
+    font-weight: 600;
+  }
+
+  .lab-progress-reset:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #334155;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   Móvil
+   --------------------------------------------------------- */
+
+@media (max-width: 560px) {
+
+  .lab-progress {
+    right: 6px;
+    bottom: 6px;
+
+    width: 240px;
+    padding: .38rem .45rem;
+
+    border-left-width: 3px;
+  }
+
+  .lab-progress-count {
+    margin-bottom: .15rem;
+    padding-right: 30px;
+
+    font-size: .66rem;
+  }
+
+  .lab-progress-percent {
+    top: .34rem;
+    right: .45rem;
+
+    font-size: .64rem;
+  }
+
+  .lab-progress-bar {
+    height: 3px;
+  }
+
+  .lab-progress-actions {
+    gap: .25rem;
+    margin-top: .28rem;
+  }
+
+  .lab-progress-continue,
+  .lab-progress-reset {
+    min-height: 24px;
+    padding: .18rem .35rem;
+    font-size: .78rem;
+  }
+}
+
+/* =========================================================
+   Progreso - escritorio vertical compacto
+   ========================================================= */
+
+@media (min-width: 1181px) {
+
+  .lab-progress {
+    top: 50%;
+    right: max(12px, calc((100vw - 1120px) / 2 - 58px));
+    bottom: auto;
+
+    width: 62px;
+
+    transform: translateY(-50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: .55rem .35rem;
+
+    border: 1px solid #d0d7de;
+    border-left: 3px solid #2563eb;
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, .98);
+
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .10);
+
+    backdrop-filter: blur(6px);
+
+    box-sizing: border-box;
+  }
+
+  .lab-progress.is-complete {
+    border-left-color: #22c55e;
+  }
+
+  .lab-progress-header {
+    display: none;
+  }
+
+  .lab-progress-count {
+    margin: 0 0 .25rem;
+    padding: 0;
+
+    font-size: .65rem;
+    line-height: 1.05;
+
+    text-align: center;
+    color: #64748b;
+  }
+
+  .lab-progress-count [data-progress-completed],
+  .lab-progress-count [data-progress-total] {
+    font-weight: 700;
+  }
+
+  .lab-progress-percent {
+    position: static;
+
+    margin: .2rem 0 0;
+
+    font-size: .64rem;
+    line-height: 1;
+
+    color: #475569;
+    font-weight: 700;
+  }
+
+  /* Barra vertical */
+  .lab-progress-bar {
+    width: 5px;
+    height: 120px;
+
+    margin: .35rem 0;
+
+    border-radius: 999px;
+
+    background: #e2e8f0;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .lab-progress-bar-fill {
+    width: 100% !important;
+    height: 0%;
+
+    border-radius: inherit;
+
+    background: #2563eb;
+
+    transition: height .25s ease;
+  }
+
+  .lab-progress.is-complete .lab-progress-bar-fill {
+    background: #22c55e;
+  }
+
+  .lab-progress-actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: .28rem;
+
+    width: 100%;
+
+    margin-top: .25rem;
+  }
+
+  .lab-progress-continue,
+  .lab-progress-reset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    min-width: 0;
+    min-height: 30px;
+
+    box-sizing: border-box;
+
+    padding: .28rem 0;
+
+    border-radius: 6px;
+
+    font-size: 1.05rem;
+    line-height: 1;
+
+    white-space: nowrap;
+  }
+
+  .lab-progress-continue {
+    border: 1px solid #93c5fd;
+
+    background: #eff6ff;
+    color: #1d4ed8;
+
+    font-weight: 800;
+  }
+
+  .lab-progress-continue:hover:not(:disabled) {
+    background: #dbeafe;
+    border-color: #60a5fa;
+  }
+
+  .lab-progress-reset {
+    border: 1px solid #cbd5e1;
+
+    background: #ffffff;
+    color: #64748b;
+
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .lab-progress-reset:hover {
+    border-color: #94a3b8;
+
+    background: #f8fafc;
+    color: #334155;
+  }
+
+  .lab-progress-reset:hover {
+    background: #f8fafc;
+    color: #334155;
+  }
+
+  .lab-progress-continue:disabled {
+    border-color: #86efac;
+
+    background: #f0fdf4;
+    color: #166534;
+
+    cursor: default;
+  }
+}
+
+/* =========================================================
+   Notificación ligera de progreso
+   ========================================================= */
+
+.lab-progress-notice {
+  position: fixed;
+
+  left: 50%;
+  bottom: 24px;
+
+  z-index: 1200;
+
+  transform:
+    translateX(-50%)
+    translateY(8px);
+
+  max-width: min(90vw, 360px);
+
+  padding: .45rem .75rem;
+
+  border: 1px solid #d0d7de;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, .97);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, .10);
+
+  color: #475569;
+
+  font-size: .76rem;
+  font-weight: 600;
+  line-height: 1.2;
+
+  text-align: center;
+
+  opacity: 0;
+  visibility: hidden;
+
+  pointer-events: none;
+
+  transition:
+    opacity .18s ease,
+    transform .18s ease,
+    visibility .18s ease;
+}
+
+
+/* Visible */
+
+.lab-progress-notice.is-visible {
+  opacity: 1;
+  visibility: visible;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+}
+
+
+/* Avance */
+
+.lab-progress-notice.is-forward {
+  border-color: #bbf7d0;
+
+  background: #f0fdf4;
+  color: #166534;
+}
+
+
+/* Retroceso */
+
+.lab-progress-notice.is-backward {
+  border-color: #fde68a;
+
+  background: #fffbeb;
+  color: #92400e;
+}
+
+
+/* Responsive */
+
+@media (max-width: 560px) {
+
+  .lab-progress-notice {
+    bottom: 78px;
+
+    max-width: calc(100vw - 28px);
+
+    padding: .4rem .65rem;
+
+    font-size: .7rem;
+  }
 }
